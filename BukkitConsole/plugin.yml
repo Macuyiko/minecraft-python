@@ -1,0 +1,3 @@
+name: Bukkit Jython Console
+main: com.macuyiko.bukkitconsole.MainPlugin
+version: 0.1
