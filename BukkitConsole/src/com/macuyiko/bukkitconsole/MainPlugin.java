@@ -5,8 +5,6 @@ import java.io.File;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.PluginClassLoader;
 
-
-
 public class MainPlugin extends JavaPlugin {
 	public void onEnable(){
 		getLogger().info("BukkitConsole: Loading libs");
@@ -25,8 +23,24 @@ public class MainPlugin extends JavaPlugin {
 			e.printStackTrace();
 		}
 		
-		getLogger().info("BukkitConsole: Starting Jython console");
-		new PythonConsole();
+		getLogger().info("BukkitConsole: Creating default config if necessary");
+		this.saveDefaultConfig();
+		
+		if (this.getConfig().getBoolean("bukkitconsole.guiconsole.enabled", false)) {
+			getLogger().info("BukkitConsole: Starting Jython GUI console");
+			new PythonConsole();
+		}
+		
+		if (this.getConfig().getBoolean("bukkitconsole.serverconsole.enabled", false)) {
+			getLogger().info("BukkitConsole: Starting Jython socket console server");
+			int port = this.getConfig().getInt("bukkitconsole.serverconsole.port", 44444);
+			int maxc = this.getConfig().getInt("bukkitconsole.serverconsole.maxconnections", 10);
+			String pass = this.getConfig().getString("bukkitconsole.serverconsole.password", "swordfish");
+			SocketServer server = new SocketServer(port, maxc, pass);
+			Thread t = new Thread(server);
+			t.start();
+			getLogger().info("BukkitConsole: Clients can connect to port: "+port);
+		}
 	}
  
 	public void onDisable(){

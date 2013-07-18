@@ -16,7 +16,7 @@ public class PythonConsole {
 		sys.path.append(new PyString("."));
 		sys.path.append(new PyString("python/"));
 
-		String scriptname = "python/start.py";
+		String scriptname = "python/console.py";
 		interp.execfile(scriptname);
 	}
 }
