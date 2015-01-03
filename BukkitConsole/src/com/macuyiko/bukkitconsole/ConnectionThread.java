@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+
+import org.python.core.Py;
+import org.python.core.PySystemState;
+import org.python.core.PyString;
 import org.python.util.InteractiveInterpreter;
 
 public class ConnectionThread implements Runnable {
@@ -18,6 +22,11 @@ public class ConnectionThread implements Runnable {
 	public ConnectionThread(Socket socket, SocketServer socketServer) {
 		this.socket = socket;
 		this.server = socketServer;
+		
+		PySystemState sys = Py.getSystemState();
+		sys.path.append(new PyString("."));
+		sys.path.append(new PyString("python/"));
+		
 		this.interpreter = new InteractiveInterpreter();
 		try {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
