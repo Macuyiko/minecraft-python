@@ -15,6 +15,6 @@ public class PythonConsole {
 
 		String scriptname = "python/console.py";
 		interp.execfile(scriptname);
-		interp.close();
+		interp.cleanup();
 	}
 }
