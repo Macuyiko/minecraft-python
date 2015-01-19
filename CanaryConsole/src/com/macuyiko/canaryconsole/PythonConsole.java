@@ -2,20 +2,20 @@ package com.macuyiko.canaryconsole;
 
 import java.io.File;
 
-import org.python.core.Py;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
-import org.python.util.PythonInterpreter;
+import org.python.util.InteractiveInterpreter;
 
 public class PythonConsole {
+	
 	public PythonConsole() {
-		PythonInterpreter interp = new PythonInterpreter(null, getPythonSystemState());
+		InteractiveInterpreter interpeter = new InteractiveInterpreter(null, getPythonSystemState());
 		String scriptname = "python/console.py";
-		interp.execfile(scriptname);
+		interpeter.execfile(scriptname);
 	}
 	
 	public static PySystemState getPythonSystemState() {
-		PySystemState sys = Py.getSystemState();
+		PySystemState sys = new PySystemState();
 		sys.path.append(new PyString("."));
 		sys.path.append(new PyString("python/"));
 
@@ -31,6 +31,5 @@ public class PythonConsole {
 		} catch (Exception e){}
 		
 		return sys;
-		
 	}
 }
