@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
-import org.python.core.PyObject;
 import org.python.util.InteractiveInterpreter;
 
 public class ConnectionThread implements Runnable {
@@ -21,7 +20,7 @@ public class ConnectionThread implements Runnable {
 		this.socket = socket;
 		this.server = socketServer;	
 		this.interpreter = new InteractiveInterpreter(
-				new PyObject(), 
+				null, 
 				PythonConsole.getPythonSystemState());
 		try {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
@@ -41,11 +40,11 @@ public class ConnectionThread implements Runnable {
 			
 			line = in.readLine();
 			if (!server.getPassword().equals(line)) {
-				out.println("Incorrect password");
+				out.println("Incorrect password: "+line);
 				socket.close();
 				return;
 			} else {
-				out.println("You're in");
+				out.println("Welcome! Don't forget to type 'exit!' when you want to logout");
 			}
 			
 			out.print(">>> ");

@@ -10,11 +10,11 @@ import net.canarymod.plugin.Plugin;
 
 public class MainPlugin extends Plugin {
 	
-	public final boolean guiconsole;
-	public final boolean serverconsole;
-	public final int serverport;
-	public final String serverpass;
-	public final int serverconns;
+	private final boolean guiconsole;
+	private final boolean serverconsole;
+	private final int serverport;
+	private final String serverpass;
+	private final int serverconns;
 	
 	public MainPlugin() {
 		super();
@@ -58,6 +58,7 @@ public class MainPlugin extends Plugin {
 				Thread t = new Thread(server);
 				t.start();
 				getLogman().info("Clients can connect to port: "+serverport);
+				getLogman().info("Using the password: "+serverpass);
 			}
     	} catch (Exception e) {
     		getLogman().error(e.getMessage());
@@ -70,10 +71,6 @@ public class MainPlugin extends Plugin {
     @Override
     public void disable() {
     	getLogman().info("CanaryConsole: Plugin disabled");
-    }
-    
-    public static void main(String[] args){
-    	// Does nothing
     }
     
     public static void addURL(URL u) throws IOException {
