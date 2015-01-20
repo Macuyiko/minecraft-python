@@ -9,9 +9,15 @@ import org.python.util.InteractiveInterpreter;
 public class PythonConsole {
 	
 	public PythonConsole() {
-		InteractiveInterpreter interpeter = new InteractiveInterpreter(null, getPythonSystemState());
-		String scriptname = "python/console.py";
-		interpeter.execfile(scriptname);
+		Runnable r = new Runnable() {
+			public void run() {
+				InteractiveInterpreter interpeter = new InteractiveInterpreter(
+						null, getPythonSystemState());
+				String scriptname = "python/console.py";
+				interpeter.execfile(scriptname);
+			}
+		};
+		new Thread(r).start();
 	}
 	
 	public static PySystemState getPythonSystemState() {
