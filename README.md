@@ -6,7 +6,7 @@ By Seppe "Macuyiko" vanden Broucke
 
 More information can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html).
 
-You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video showing off some of the possibilities. Note: this video uses the older Bukkit version of the plugin. A new one will follow soon.
+You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video showing off some of the possibilities.
 
 The implementation is based on Jython. This has the benefit that the whole Canary API can be utilized at runtime, without having to register commands to the Canary plugin itself, i.e. this deliberately avoids the approach of [ScriptCraft](http://scriptcraftjs.org/) (which is another great plugin, but we have a different aim here). This makes the plugin itself very simple and always in line with the Canary API, but also adds some extra complexity, as you might have to peruse the Canary Javadocs to find your way through all methods.
 
