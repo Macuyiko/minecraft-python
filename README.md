@@ -4,11 +4,13 @@ By Seppe "Macuyiko" vanden Broucke
 
 `MinecraftPythonConsole` is a Minecraft Canary plugin which provides server administrators with a Python interpreter console (either locally though a GUI or remotely with an interpreter server) which can be used to administer running servers using the full arsenal provided by the Canary API.
 
-You can watch a [Youtube](http://www.youtube.com/watch?v=rI3PfgCSI7Y) video showing off some of the possibilities. Note: this video uses the older Bukkit version of the plugin. A new one will follow soon.
+More information can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html).
+
+You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video showing off some of the possibilities. Note: this video uses the older Bukkit version of the plugin. A new one will follow soon.
 
 The implementation is based on Jython. This has the benefit that the whole Canary API can be utilized at runtime, without having to register commands to the Canary plugin itself, i.e. this deliberately avoids the approach of [ScriptCraft](http://scriptcraftjs.org/) (which is another great plugin, but we have a different aim here). This makes the plugin itself very simple and always in line with the Canary API, but also adds some extra complexity, as you might have to peruse the Canary Javadocs to find your way through all methods.
 
-Other than allowing cool administration possibilities, the console also provides a fun way to learn Python together with Minecraft. Students can see the results of their code immediately reflected in their Minecraft world. I'm looking for ways to expand this further, either in the form of a book, video series, otherwise. You can let me know (see "Contact" below) in case you'd be interested in this or want to collaborate somehow. One thing I am definitely not interested in is setting up a server-as-a-service platform. I like that the [http://learntomod.com](learntomod.com) are helping, but the price point might be a bit cheap for some.
+Other than allowing cool administration possibilities, the console also provides a fun way to learn Python together with Minecraft. Students can see the results of their code immediately reflected in their Minecraft world. I'm looking for ways to expand this further, either in the form of a book, video series, otherwise. You can let me know (see "Contact" below) in case you'd be interested in this or want to collaborate somehow. One thing I am definitely not interested in is setting up a server-as-a-service platform. I like that the folks over at [http://learntomod.com](learntomod.com) are helping, but the price point might be a bit cheap for some.
 
 ## Setup
 
@@ -32,4 +34,3 @@ Logging into the interpreter server can be done using telnet, e.g. `telnet 127.0
 
 Both for the GUI based and server based interpreter, it's a good idea to execute `from net.canarymod import Canary` as your first command, al you'll need this for anything else.
 
-More information can be found on [this blog post](http://blog.macuyiko.com/post/2013/a-bukkit-jython-console-plugin-for-minecraft.html). Note that this post still refers to the old Bukkit plugin, I am in the process of updating this post as well.
