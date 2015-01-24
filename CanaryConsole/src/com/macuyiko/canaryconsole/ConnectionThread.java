@@ -15,8 +15,10 @@ public class ConnectionThread implements Runnable {
 	private String line;
 	private PrintStream out;
 	private BufferedReader in;
+	private String buffer;
 	
 	public ConnectionThread(Socket socket, SocketServer socketServer) {
+		this.buffer = "";
 		this.socket = socket;
 		this.server = socketServer;	
 		this.interpreter = new InteractiveInterpreter(
@@ -49,15 +51,20 @@ public class ConnectionThread implements Runnable {
 			
 			out.print(">>> ");
 			while ((line = in.readLine()) != null && !line.equals("exit!")) {
-				boolean result = interpreter.runsource(line);
- 				if (result)		out.print("... ");
-				else			out.print(">>> ");
- 				if (line.equals("stop!")) {
+				if (line.equals("stop!")) {
  					server.getListener().close();
  					socket.close();
  					return;
  				}
-			}
+				buffer += "\n"+line;
+				boolean more = interpreter.runsource(buffer);
+				if (more) {
+					out.print("... ");
+				} else {
+					buffer = "";
+					out.print(">>> ");
+				}
+			}	
 			
 			out.println("Bye");
 			socket.close();

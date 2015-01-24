@@ -23,12 +23,12 @@ public class MainPlugin extends Plugin {
 		serverport = getConfig().getInt("canaryconsole.serverconsole.port", 44444);
 		serverpass = getConfig().getString("canaryconsole.serverconsole.password", "swordfish");
 		serverconns = getConfig().getInt("canaryconsole.serverconsole.maxconnections", 10);
+		getConfig().save();
 	}
 	
     @Override
     public boolean enable() {
     	getLogman().info("Loading");
-    	
 		try {
 			File dependencyDirectory = new File("lib/");
 			File[] files = dependencyDirectory.listFiles();
@@ -43,18 +43,14 @@ public class MainPlugin extends Plugin {
 			getLogman().error(e.getMessage());
     		return false;
 		}
-		
-    	getConfig().save();
-    	
     	try {
 	    	if (guiconsole) {
 	    		getLogman().info("Starting Jython GUI console");
 				new PythonConsole();
 			}
-			
 			if (serverconsole) {
 				getLogman().info("Starting Jython socket console server");
-				SocketServer server = new SocketServer(serverport, serverconns, serverpass);
+				SocketServer server = new SocketServer(this, serverport, serverconns, serverpass);
 				Thread t = new Thread(server);
 				t.start();
 				getLogman().info("Clients can connect to port: "+serverport);
@@ -64,7 +60,6 @@ public class MainPlugin extends Plugin {
     		getLogman().error(e.getMessage());
     		return false;
     	}
-		
         return true;
     }
     
@@ -87,7 +82,6 @@ public class MainPlugin extends Plugin {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
-
     }
 }
 

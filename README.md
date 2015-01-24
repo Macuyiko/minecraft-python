@@ -1,4 +1,4 @@
-# Jython console plugin for Canary (formerly Bukkit)
+# Jython console plugin for Canary
 
 By Seppe "Macuyiko" vanden Broucke
 
@@ -16,13 +16,11 @@ Other than allowing cool administration possibilities, the console also provides
 
 The code is composed out of the following items. I assume you have Canary (CanaryMod) already running as a server.
 
-* `BukkitConsole`: this is the legacy project (Eclipse project), originally built on top of Bukkit. The Bukkit project is out, so this project is not worked on anymore.
-* `CanaryConsole`: Eclipse project for the plugin. If you just want to get up and running, you don't need this, unless you want to make changes to the source.
 * `PlaceInCanaryMod/python`: contains the Jython Python interpreter console. This uses the excellent work by [Don Coleman](http://don.freeshell.org/jython/), with some minor changes to keep the autocomplete from raising exceptions. **Put this folder in your CanaryMod installation directory, i.e. next to `plugins`.**
 * `PlaceInCanaryMod/lib`: contains the Canary APIs and Jython libraries needed by the plugin. **Put this folder in your CanaryMod installation directory, i.e. next to `plugins`.** (You might want to check if the libs are still up to date, though.)
 * `PlaceInCanaryMod/plugins`: contains the compiled plugin. **Put the jar herein in the `plugins` folder of your CanaryMod installation directory.**
 
-Upon starting, the plugin will create a `CanaryConsole.cfg` file in its `config/CanaryConsole` subdirectory where the following config parameters can be set:
+Upon starting, the plugin will create a `CanaryConsole.cfg` file in its `config/CanaryConsole` subdirectory where the following parameters can be set:
 
 * `canaryconsole.guiconsole.enabled [bool]`: start the GUI interpreter locally (default: true)
 * `canaryconsole.serverconsole.enabled [bool]`: enable the remote interpreter server (default: true)
@@ -30,7 +28,15 @@ Upon starting, the plugin will create a `CanaryConsole.cfg` file in its `config/
 * `canaryconsole.serverconsole.port [int]`: port to bind the interpreter server to (default: 44444)
 * `canaryconsole.serverconsole.maxconnections [int]`: maximum number of simultaneous connections (default: 10)
 
-Logging into the interpreter server can be done using telnet, e.g. `telnet 127.0.0.1 44444` you will be prompted for the password and an interpreter will be spawned after succesful authentication.
+Logging into the interpreter server can be done using telnet, e.g. `telnet 127.0.0.1 44444` you will be prompted for the password and an interpreter will be spawned after successful authentication. (I suggest you use a RAW connection from Putty, however, to make life easier as this allows to use backspace -- Windows' default telnet client does not.)
 
-Both for the GUI based and server based interpreter, it's a good idea to execute `from net.canarymod import Canary` as your first command, al you'll need this for anything else.
+Both for the GUI based and server based interpreter, it's a good idea to execute `from net.canarymod import Canary` as your first command, as you'll need this for anything else.
+
+If you want to have a look at the plugin's source (optional):
+
+* `CanaryConsole`: Eclipse project for the plugin.
+* `BukkitConsole`: Eclipse project originally built on top of Bukkit. I've made some changes for this to work on [Spigot](http://www.spigotmc.org/), but you'll need to compile this yourself if you want to use this version. Note that:
+	* You'll need to place the libs from the `lib` folder in a `lib` folder in your Spigot folder, i.e. don't use the libs of `PlaceInCanaryMod/lib` above.
+	* You don't need the `python` folder, as the default configuration does not spawn a GUI interpreter, but only allows for incoming connections. This is because Spigot enforces that some API calls are made on the Spigot thread. The server-client based interpreter already ensures that this happens in the correct way, but the GUI interpreter does not. You can do this yourself (wrap your commands in a `BukkitRunnable` to do so).
+	* Naturally, you import `from org.bukkit import Bukkit` for this to work. 
 
