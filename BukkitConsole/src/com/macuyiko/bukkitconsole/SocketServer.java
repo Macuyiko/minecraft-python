@@ -3,37 +3,30 @@ package com.macuyiko.bukkitconsole;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import org.python.util.PythonInterpreter;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SocketServer implements Runnable {
+	private MainPlugin plugin;
 	private int port;
-	private int maxConnections;
 	private String password;
 	private ServerSocket listener;
+	protected ExecutorService threadPool;
 	
-	public SocketServer() {
-		this(4444, 10, "");
-	}
-	
-	public SocketServer (int port, int maxConnections, String password) {
-		PythonInterpreter.initialize(System.getProperties(), null, new String[] {});
+	public SocketServer (MainPlugin mainPlugin, int port, int maxConnections, String password) {
+		this.plugin = mainPlugin;
 		this.port = port;
-		this.maxConnections = maxConnections;
 		this.password = password;
+		this.threadPool = Executors.newFixedThreadPool(maxConnections);
 	}
 	
 	public void run() {
-		int i = 0;
 		try {
 			listener = new ServerSocket(port);
-			Socket server;
-			while ((i++ < maxConnections) || (maxConnections == 0)) {
-				server = listener.accept();
-				System.out.println("Number of clients: "+i);
-				ConnectionThread connection = new ConnectionThread(server, this);
-				Thread t = new Thread(connection);
-				t.start();
+			Socket clientSocket ;
+			while (true) {
+				clientSocket = listener.accept();
+				threadPool.execute(new ConnectionThread(clientSocket, this));
 			}
 		} catch (IOException ioe) {
 			System.out.println("IOException on socket listen: " + ioe);
@@ -52,6 +45,10 @@ public class SocketServer implements Runnable {
 
 	public ServerSocket getListener() {
 		return listener;
+	}
+
+	public MainPlugin getPlugin() {
+		return plugin;
 	}
 
 }

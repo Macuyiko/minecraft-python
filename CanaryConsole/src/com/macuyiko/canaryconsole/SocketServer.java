@@ -7,17 +7,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SocketServer implements Runnable {
+	private MainPlugin plugin;
 	private int port;
 	private String password;
 	private ServerSocket listener;
 	protected ExecutorService threadPool;
 	
-	public SocketServer() {
-		this(4444, 10, "");
-	}
-	
-	public SocketServer (int port, int maxConnections, String password) {
-	//	PythonInterpreter.initialize(System.getProperties(), null, new String[] {});
+	public SocketServer (MainPlugin plugin, int port, int maxConnections, String password) {
+		this.plugin = plugin;
 		this.port = port;
 		this.password = password;
 		this.threadPool = Executors.newFixedThreadPool(maxConnections);
@@ -50,4 +47,7 @@ public class SocketServer implements Runnable {
 		return listener;
 	}
 
+	public MainPlugin getPlugin() {
+		return plugin;
+	}
 }
