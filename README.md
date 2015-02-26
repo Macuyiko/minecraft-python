@@ -2,41 +2,80 @@
 
 By Seppe "Macuyiko" vanden Broucke
 
-`MinecraftPythonConsole` is a Minecraft Canary plugin which provides server administrators with a Python interpreter console (either locally though a GUI or remotely with an interpreter server) which can be used to administer running servers using the full arsenal provided by the Canary API.
+`MinecraftPythonConsole` is a Minecraft Canary plugin which provides server administrators with a Python interpreter console which can be used to administer running servers using the full arsenal provided by the Canary API.
 
-More information can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html).
+More background information on how this project came to be can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html).
 
 You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video showing off some of the possibilities.
 
-The implementation is based on Jython. This has the benefit that the whole Canary API can be utilized at runtime, without having to register commands to the Canary plugin itself, i.e. this deliberately avoids the approach of [ScriptCraft](http://scriptcraftjs.org/) (which is another great plugin, but we have a different aim here). This makes the plugin itself very simple and always in line with the Canary API, but also adds some extra complexity, as you might have to peruse the Canary Javadocs to find your way through all methods.
+The implementation is based on Jython. This has the benefit that the whole Canary API can be utilized at runtime, without having to register commands to the Canary plugin itself, i.e. this deliberately avoids the approach of [ScriptCraft](http://scriptcraftjs.org/) (another great plugin, but we have a different aim here). This makes the plugin itself very simple and always in line with the Canary API, but also adds some extra complexity, as you might have to peruse the Canary Javadocs to find your way through all methods.
 
-Other than allowing cool administration possibilities, the console also provides a fun way to learn Python together with Minecraft. Students can see the results of their code immediately reflected in their Minecraft world. I'm looking for ways to expand this further, either in the form of a book, video series, otherwise. You can let me know (see "Contact" below) in case you'd be interested in this or want to collaborate somehow. One thing I am definitely not interested in is setting up a server-as-a-service platform. I like that the folks over at [http://learntomod.com](learntomod.com) are helping, but the price point might be a bit cheap for some.
+Other than allowing cool administration possibilities, the console also provides a fun way to learn Python together with Minecraft. Students can see the results of their code immediately reflected in their Minecraft world. The folks over at [Game Start](http://www.gamestartschool.com/) are currently experimenting with using this. If you'd be interesting in collaborate somehow as well, I'm happy to chat.
 
 ## Setup
 
-The code is composed out of the following items. I assume you have Canary (CanaryMod) already running as a server.
+The code is composed out of the following items:
 
-* `PlaceInCanaryMod/python`: contains the Jython Python interpreter console. This uses the excellent work by [Don Coleman](http://don.freeshell.org/jython/), with some minor changes to keep the autocomplete from raising exceptions. **Put this folder in your CanaryMod installation directory, i.e. next to `plugins`.**
-* `PlaceInCanaryMod/lib`: contains the Canary APIs and Jython libraries needed by the plugin. **Put this folder in your CanaryMod installation directory, i.e. next to `plugins`.** (You might want to check if the libs are still up to date, though.)
-* `PlaceInCanaryMod/plugins`: contains the compiled plugin. **Put the jar herein in the `plugins` folder of your CanaryMod installation directory.**
+* `ServerPythonInterpreterPlugin`: contains the plugin source code as an Eclipse project. Compatible both with Canary and Spigot.
+* `ServerPythonEditor`: contains the source code for a simple Python editor you can use to connect to the server.
 
-Upon starting, the plugin will create a `CanaryConsole.cfg` file in its `config/CanaryConsole` subdirectory where the following parameters can be set:
+(Note: the plugin also used to spawn a local Python interpreter Window, but this was removed in a recent update in favor of a decoupled client-server architecture.)
 
-* `canaryconsole.guiconsole.enabled [bool]`: start the GUI interpreter locally (default: true)
-* `canaryconsole.serverconsole.enabled [bool]`: enable the remote interpreter server (default: true)
+Assuming you already have installed Canary in `CANARY_DIR`, the plugin is installed as follows:
+
+* Place `ServerPythonInterpreterPlugin/python` in `CANARY_DIR` (i.e. you will get a `CANARY_DIR/python` folder).
+* Place `ServerPythonInterpreterPlugin/lib-common` in `CANARY_DIR` (i.e. you will get a `CANARY_DIR/lib-common` folder).
+* Place `ServerPythonInterpreterPlugin/lib-canary` in `CANARY_DIR` (i.e. you will get a `CANARY_DIR/lib-canary` folder).
+
+If you're running Spigot instead, replace the last step with:
+
+* Place `ServerPythonInterpreterPlugin/lib-spigot` in `SPIGOT_DIR` (i.e. you will get a `SPIGOT_DIR/lib-spigot` folder).
+
+If Canary releases a new CanaryLib package (for new MineCraft versions), you can overwrite the JAR in `CANARY_DIR/lib-canary`. Unless significant changes happen, this will be enough to keep the plugin working.
+
+Upon starting, the plugin will create config file in its `CANARY_DIR/config` subdirectory where the following parameters can be set:
+
 * `canaryconsole.serverconsole.password [string]`: interpreter server password (default: swordfish)
 * `canaryconsole.serverconsole.port [int]`: port to bind the interpreter server to (default: 44444)
 * `canaryconsole.serverconsole.maxconnections [int]`: maximum number of simultaneous connections (default: 10)
 
-Logging into the interpreter server can be done using telnet, e.g. `telnet 127.0.0.1 44444` you will be prompted for the password and an interpreter will be spawned after successful authentication. (I suggest you use a RAW connection from Putty, however, to make life easier as this allows to use backspace -- Windows' default telnet client does not.)
+On Linux hosts, install can be done like this:
 
-Both for the GUI based and server based interpreter, it's a good idea to execute `from net.canarymod import Canary` as your first command, as you'll need this for anything else.
+	# Install Canary if you've not done so already
+	~$ mkdir canary
+	~$ cd canary
+	~/canary$ wget http://canarymod.net/download/file/fid/361 -O canary.jar
+	# Start for first time and configure (ops, accept eula, ...)
+	~/canary$ java -jar canary.jar 
+	~/canary$ nano ./config/ops.cfg
+	~/canary$ nano eula.txt
+	
+	# Clone this Git repository
+	~/canary$ git clone https://github.com/Macuyiko/MinecraftPythonConsole.git
+	~/canary$ ls
+	# canary.jar db     eula.txt   MinecraftPythonConsole plugins 
+	# worlds     config dbadapters logs                   pluginlangs
+	# Copy over python, lib-common, lib-canary folders
+	~/canary$ cp -avr ./MinecraftPythonConsole/ServerPythonInterpreterPlugin/python .
+	~/canary$ cp -avr ./MinecraftPythonConsole/ServerPythonInterpreterPlugin/lib-common .
+	~/canary$ cp -avr ./MinecraftPythonConsole/ServerPythonInterpreterPlugin/lib-canary .
+	# Put compiled console.jar plugin binary in plugins (compile this yourself if you prefer)
+	~/canary$ cp -avr ./MinecraftPythonConsole/ServerPythonInterpreterPlugin/bin/console.jar ./plugins/console.jar
+	# Start canary
+	~/canary$ java -jar ./canary.jar
 
-If you want to have a look at the plugin's source (optional):
+## Usage
 
-* `CanaryConsole`: Eclipse project for the plugin.
-* `BukkitConsole`: Eclipse project originally built on top of Bukkit. I've made some changes for this to work on [Spigot](http://www.spigotmc.org/), but you'll need to compile this yourself if you want to use this version. Note that:
-	* You'll need to place the libs from the `lib` folder in a `lib` folder in your Spigot folder, i.e. don't use the libs of `PlaceInCanaryMod/lib` above.
-	* You don't need the `python` folder, as the default configuration does not spawn a GUI interpreter, but only allows for incoming connections. This is because Spigot enforces that some API calls are made on the Spigot thread. The server-client based interpreter already ensures that this happens in the correct way, but the GUI interpreter does not. You can do this yourself (wrap your commands in a `BukkitRunnable` to do so).
-	* Naturally, you import `from org.bukkit import Bukkit` for this to work. 
+Logging into the interpreter server can be done using telnet, e.g. `telnet 127.0.0.1 44444` you will be prompted for the password and an interpreter will be spawned after successful authentication:
 
+![](https://camo.githubusercontent.com/6fea3b76ec29006ef0e423dc78d3993bc9489797/687474703a2f2f696d6775722e636f6d2f676f4c684733392e706e67)
+
+You can also initiate a RAW connection using PuTTy (make sure to enable "Implicit CR in every LF"):
+
+![](https://camo.githubusercontent.com/6ddb498f728187442e1fca2add801a978d907e75/687474703a2f2f692e696d6775722e636f6d2f316b553276744c2e706e67)
+
+After loggin in, it's a good idea to execute `from net.canarymod import Canary` as your first command, as you'll need this for anything else. You can also execute `from mcapi import *`, which will load a Python file giving you access to some simple, pre-defined commands.
+
+Finally, you can also use the editor in `ServerPythonEditor` to do the same:
+
+![](https://camo.githubusercontent.com/84093a0cfc1102ed283644bcf356c576a7b37422/687474703a2f2f692e696d6775722e636f6d2f436b6a55716e4e2e706e67)

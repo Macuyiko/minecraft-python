@@ -1,8 +1,0 @@
-bukkitconsole:
- guiconsole: 
-  enabled: true
- serverconsole:
-  enabled: true
-  password: swordfish
-  port: 44444
-  maxconnections: 10
