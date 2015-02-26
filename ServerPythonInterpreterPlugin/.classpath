@@ -44,9 +44,8 @@
 	<classpathentry kind="lib" path="deps/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="deps/viutils-1.4.1.jar"/>
 	<classpathentry kind="lib" path="lib-common/jython-standalone-2.7-b1.jar"/>
-	<classpathentry kind="lib" path="lib-canary/CanaryLib-1.2.0-SNAPSHOT-470.jar"/>
-	<classpathentry kind="lib" path="lib-canary/CanaryMod-1.8.0-1.2.0-RC1.jar"/>
 	<classpathentry kind="lib" path="lib-spigot/craftbukkit-1.8.jar"/>
 	<classpathentry kind="lib" path="lib-spigot/spigot-1.8.jar"/>
+	<classpathentry kind="lib" path="lib-canary/CanaryMod-1.2.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
