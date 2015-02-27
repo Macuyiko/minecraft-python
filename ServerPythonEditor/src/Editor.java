@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -193,7 +194,7 @@ public class Editor extends JFrame implements ActionListener {
 			    scriptArea.setText("");
 			    List<String> lines;
 				try {
-					lines = Files.readAllLines(path);
+					lines = Files.readAllLines(path, Charset.defaultCharset());
 					for (String line : lines){
 				    	scriptArea.append(line+"\n");
 				    }
@@ -208,7 +209,7 @@ public class Editor extends JFrame implements ActionListener {
 				List<String> lines = new ArrayList<String>();
 				lines.add(scriptArea.getText());
 				try {
-					Files.write(path, lines);
+					Files.write(path, lines, Charset.defaultCharset());
 				} catch (IOException e1) {}
 			}
 		} else if(e.getSource() == menuSave) {
@@ -216,7 +217,7 @@ public class Editor extends JFrame implements ActionListener {
 			List<String> lines = new ArrayList<String>();
 			lines.add(scriptArea.getText());
 			try {
-				Files.write(path, lines);
+				Files.write(path, lines, Charset.defaultCharset());
 			} catch (IOException e1) {}
 		}
 	}
