@@ -23,6 +23,8 @@ public class ConsolePlugin {
 	
 	public static void start(Object mainPlugin, int serverport, String serverpass, int serverconns) {
 		SocketServer server = new SocketServer(mainPlugin, serverport, serverconns, serverpass);
+		PyWebSocketServer webserver = new PyWebSocketServer(mainPlugin, serverport+1, serverpass);
+		webserver.start();
 		Thread t = new Thread(server);
 		t.start();
 	}

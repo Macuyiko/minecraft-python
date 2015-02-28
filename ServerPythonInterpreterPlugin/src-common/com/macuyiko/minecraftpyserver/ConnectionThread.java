@@ -8,7 +8,7 @@ import java.net.Socket;
 
 import org.python.util.InteractiveInterpreter;
 
-public abstract class ConnectionThread implements Runnable {
+public class ConnectionThread implements Runnable {
 	protected Socket socket;
 	protected SocketServer server;
 	protected InteractiveInterpreter interpreter;
@@ -24,7 +24,6 @@ public abstract class ConnectionThread implements Runnable {
 		this.interpreter = new InteractiveInterpreter(
 				null, 
 				ConsolePlugin.getPythonSystemState());
-		
 		try {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			this.out = new PrintStream(this.socket.getOutputStream());
@@ -79,6 +78,11 @@ public abstract class ConnectionThread implements Runnable {
 		}
 	}
 
-	protected abstract boolean parse(String buffer);
+	protected boolean parse(String code) {
+		if (ConsolePlugin.isCanary(this.server.getPlugin()))
+			return CanaryParser.parse(this.interpreter, code);
+		else
+			return SpigotParser.parse(this.interpreter, code, this.server.getPlugin());
+	}
 
 }
