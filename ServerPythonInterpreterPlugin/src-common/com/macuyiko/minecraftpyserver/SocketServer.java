@@ -26,10 +26,7 @@ public class SocketServer implements Runnable {
 			Socket clientSocket ;
 			while (true) {
 				clientSocket = listener.accept();
-				if (ConsolePlugin.isCanary(plugin))
-					threadPool.execute(new CanaryConnectionThread(clientSocket, this));
-				else
-					threadPool.execute(new SpigotConnectionThread(clientSocket, this));
+				threadPool.execute(new ConnectionThread(clientSocket, this));
 			}
 		} catch (IOException ioe) {
 			System.out.println("IOException on socket listen: " + ioe);

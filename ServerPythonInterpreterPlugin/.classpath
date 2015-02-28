@@ -47,5 +47,6 @@
 	<classpathentry kind="lib" path="lib-spigot/craftbukkit-1.8.jar"/>
 	<classpathentry kind="lib" path="lib-spigot/spigot-1.8.jar"/>
 	<classpathentry kind="lib" path="lib-canary/CanaryMod-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib-common/java_websocket.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
