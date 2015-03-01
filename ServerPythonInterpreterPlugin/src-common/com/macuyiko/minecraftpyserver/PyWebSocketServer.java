@@ -64,7 +64,7 @@ public class PyWebSocketServer extends WebSocketServer {
 		
 		if (message.startsWith("login!")) {
 			String p = message.split("!")[1];
-			if (password.equals(p)) {
+			if (!password.equals(p)) {
 				ws.send("Incorrect password!\n");
 			} else {
 				authorized.put(ws, true);
