@@ -6,15 +6,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.python.util.InteractiveInterpreter;
+
+import com.macuyiko.bukkitconsole.SpigotParser;
+import com.macuyiko.canaryconsole.CanaryParser;
 
 public class PyWebSocketServer extends WebSocketServer {
 	private Object plugin;
 	private String password;
 	private Map<WebSocket, InteractiveInterpreter> connections;
 	private Map<WebSocket, String> buffers;
+	private Map<WebSocket, Boolean> authorized;
 	
 	public PyWebSocketServer (Object caller, int port, String password) {
 		super(new InetSocketAddress(port));
@@ -22,6 +27,7 @@ public class PyWebSocketServer extends WebSocketServer {
 		this.password = password;
 		this.connections = new HashMap<WebSocket, InteractiveInterpreter>();
 		this.buffers = new HashMap<WebSocket, String>();
+		this.authorized = new HashMap<WebSocket, Boolean>();
 	}
 	
 	public String getPassword() {
@@ -33,9 +39,61 @@ public class PyWebSocketServer extends WebSocketServer {
 	}
 
 	@Override
+	public void onOpen(WebSocket ws, ClientHandshake chs) {
+		ConsolePlugin.log(plugin, "New websocket connection");
+		InteractiveInterpreter interpreter = new InteractiveInterpreter(null, ConsolePlugin.getPythonSystemState());
+		OutputStream os = new MyOutputStream(ws);
+		interpreter.setOut(os);
+		interpreter.setErr(os);
+		connections.put(ws, interpreter);
+		buffers.put(ws, "");
+		authorized.put(ws, false);
+		ws.send("Login by sending 'login!<PASSWORD>'\n");
+	}
+
+	@Override
 	public void onClose(WebSocket ws, int arg1, String arg2, boolean arg3) {
 		connections.remove(ws);
 		buffers.remove(ws);
+		authorized.remove(ws);
+	}
+
+	@Override
+	public void onMessage(WebSocket ws, final String message) {
+		final boolean auth = authorized.get(ws);
+		
+		if (message.startsWith("login!")) {
+			String p = message.split("!")[1];
+			if (password.equals(p)) {
+				ws.send("Incorrect password!\n");
+			} else {
+				authorized.put(ws, true);
+				ws.send("Welcome!");
+				ws.send(">>> ");
+			}
+		}
+		
+		if (message.equals("exit!")) {
+			ws.close(CloseFrame.NORMAL);
+		}
+		
+		if (!auth) {
+			ws.send("Not authorized, login first by sending 'login!<PASSWORD>'\n");
+			return;
+		}
+		
+		final InteractiveInterpreter interpreter = connections.get(ws);
+		boolean more;
+		if (message.contains("\n")) {
+			more = parse(interpreter, message, true);
+			interpreter.exec(message);
+		} else {
+			buffers.put(ws, buffers.get(ws)+"\n"+message); 
+			more = parse(interpreter, buffers.get(ws), false);
+		}
+		if (!more) buffers.put(ws, "");
+		if (more) ws.send("... ");
+		else ws.send(">>> ");
 	}
 
 	@Override
@@ -43,39 +101,13 @@ public class PyWebSocketServer extends WebSocketServer {
 
 	}
 
-	@Override
-	public void onMessage(WebSocket ws, final String message) {
-		final InteractiveInterpreter interpreter = connections.get(ws);
-		if (message.contains("\n")) {
-			interpreter.exec(message);
-			ws.send(">>> ");
-		} else {
-			boolean more = false;
-			buffers.put(ws, buffers.get(ws)+"\n"+message); 
-			more = parse(interpreter, buffers.get(ws));
-			if (!more) buffers.put(ws, "");
-			if (more) ws.send("... ");
-			else ws.send(">>> ");
-		}
-	}
-	
-	protected boolean parse(InteractiveInterpreter interpreter, String code) {
+	protected boolean parse(InteractiveInterpreter interpreter, String code, boolean exec) {
 		if (ConsolePlugin.isCanary(this.getPlugin()))
-			return CanaryParser.parse(interpreter, code);
+			return CanaryParser.parse(interpreter, code, exec);
 		else
-			return SpigotParser.parse(interpreter, code, this.getPlugin());
+			return SpigotParser.parse(interpreter, code, exec, this.getPlugin());
 	}
 
-	@Override
-	public void onOpen(WebSocket ws, ClientHandshake chs) {
-		InteractiveInterpreter interpreter = new InteractiveInterpreter(null, ConsolePlugin.getPythonSystemState());
-		OutputStream os = new MyOutputStream(ws);
-		interpreter.setOut(os);
-		interpreter.setErr(os);
-		connections.put(ws, interpreter);
-		buffers.put(ws, "");
-	}
-	
 	public class MyOutputStream extends OutputStream {
 		WebSocket ws;
 		public MyOutputStream(WebSocket ws) {

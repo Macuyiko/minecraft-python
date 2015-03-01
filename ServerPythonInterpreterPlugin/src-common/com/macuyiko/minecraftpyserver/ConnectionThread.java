@@ -8,6 +8,9 @@ import java.net.Socket;
 
 import org.python.util.InteractiveInterpreter;
 
+import com.macuyiko.bukkitconsole.SpigotParser;
+import com.macuyiko.canaryconsole.CanaryParser;
+
 public class ConnectionThread implements Runnable {
 	protected Socket socket;
 	protected SocketServer server;
@@ -32,17 +35,15 @@ public class ConnectionThread implements Runnable {
 		}
 		this.interpreter.setOut(this.out);
 		this.interpreter.setErr(this.out);
+		ConsolePlugin.log(this.server.getPlugin(), "New telnet connection");
 	}
 
 	public void run() {
 		try {	
-			out.println("Python Interpreter Server");
-			out.println("-------------------------\n");
 			out.print("PASSWORD: ");
-			
 			line = in.readLine();
 			if (!server.getPassword().equals(line)) {
-				out.println("Incorrect password: "+line);
+				out.println("Incorrect password!");
 				socket.close();
 				return;
 			} else {
@@ -51,21 +52,21 @@ public class ConnectionThread implements Runnable {
 			
 			out.print(">>> ");
 			while ((line = in.readLine()) != null && !line.equals("exit!")) {
-				if (line.equals("stop!")) {
- 					server.getListener().close();
- 					socket.close();
- 					return;
- 				}
-				buffer += "\n"+line;
-				boolean more = parse(buffer);
-				if (more) {
-					out.print("... ");
+				boolean more;
+				if (line.contains("\n")) {
+					// As we are using readLine() above, this branch
+					// will never occur. The telnet interface is thus
+					// a pure REPL
+					more = parse(line, true);
+					interpreter.exec(line);
 				} else {
-					buffer = "";
-					out.print(">>> ");
+					buffer += "\n"+line;
+					more = parse(buffer, false);
 				}
+				if (!more) buffer = "";
+				if (more) out.print("... ");
+				else out.print(">>> ");
 			}			
-			out.println("Bye");
 			socket.close();
 		} catch (IOException ioe) {
 			System.out.println("IOException on socket listen: " + ioe);
@@ -78,11 +79,11 @@ public class ConnectionThread implements Runnable {
 		}
 	}
 
-	protected boolean parse(String code) {
+	protected boolean parse(String code, boolean exec) {
 		if (ConsolePlugin.isCanary(this.server.getPlugin()))
-			return CanaryParser.parse(this.interpreter, code);
+			return CanaryParser.parse(this.interpreter, code, exec);
 		else
-			return SpigotParser.parse(this.interpreter, code, this.server.getPlugin());
+			return SpigotParser.parse(this.interpreter, code, exec, this.server.getPlugin());
 	}
 
 }
