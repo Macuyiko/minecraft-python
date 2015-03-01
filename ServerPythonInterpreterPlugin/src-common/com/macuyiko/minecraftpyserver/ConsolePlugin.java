@@ -3,15 +3,12 @@ package com.macuyiko.minecraftpyserver;
 import java.io.File;
 
 import net.canarymod.plugin.Plugin;
-
 import org.bukkit.plugin.java.JavaPlugin;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
 
 public class ConsolePlugin {
-	private ConsolePlugin() {
-		
-	}
+	private ConsolePlugin() {}
 		
 	public static void log(Object plugin, String message) {
 		if (isCanary(plugin)) {
