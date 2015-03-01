@@ -66,6 +66,7 @@ public class PyWebSocketServer extends WebSocketServer {
 			String p = message.split("!")[1];
 			if (!password.equals(p)) {
 				ws.send("Incorrect password!\n");
+				return;
 			} else {
 				authorized.put(ws, true);
 				ws.send("Welcome!");
@@ -75,6 +76,7 @@ public class PyWebSocketServer extends WebSocketServer {
 		
 		if (message.equals("exit!")) {
 			ws.close(CloseFrame.NORMAL);
+			return;
 		}
 		
 		if (!auth) {
