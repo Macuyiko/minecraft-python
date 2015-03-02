@@ -37,9 +37,12 @@ def weather(rainsnow, thunder):
 def explosion(pos, power=8):
 	WORLD.makeExplosion(None, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), power, True)
 
-def setblock(pos, ty=BlockType.Cobble):
+def setblock_pos(pos, ty=BlockType.Cobble):
 	WORLD.setBlockAt(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), ty)
 
+def setblock(x, y, z, ty=BlockType.Cobble):
+	WORLD.setBlockAt(x, y, z, ty)
+	
 def bolt(pos):
 	WORLD.makeLightningBolt(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ())
 
