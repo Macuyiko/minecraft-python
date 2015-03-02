@@ -60,18 +60,18 @@ public class PyWebSocketServer extends WebSocketServer {
 
 	@Override
 	public void onMessage(WebSocket ws, final String message) {
-		final boolean auth = authorized.get(ws);
+		boolean auth = authorized.get(ws);
 		
 		if (message.startsWith("login!")) {
 			String p = message.split("!")[1];
 			if (!password.equals(p)) {
 				ws.send("Incorrect password!\n");
-				return;
 			} else {
 				authorized.put(ws, true);
-				ws.send("Welcome!");
+				ws.send("Welcome!\n");
 				ws.send(">>> ");
 			}
+			return;
 		}
 		
 		if (message.equals("exit!")) {
