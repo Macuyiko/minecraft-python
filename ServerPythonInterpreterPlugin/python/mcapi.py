@@ -37,8 +37,18 @@ def weather(rainsnow, thunder):
 def explosion(pos, power=8):
 	WORLD.makeExplosion(None, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), power, True)
 
-def setblock(pos, ty=BlockType.Cobble):
+def setblock_pos(pos, ty=BlockType.Cobble):
 	WORLD.setBlockAt(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), ty)
+
+def setblock(x, y, z, ty=BlockType.Cobble):
+	WORLD.setBlockAt(x, y, z, ty)
+
+def cube(px, py, pz,ty=BlockType.Cobble, size=4):
+	size = min(size, 12)
+	for x in range(size):
+		for y in range(size):
+			for z in range(size):
+				WORLD.setBlockAt(x + px, y + py, z + pz, ty)
 
 def bolt(pos):
 	WORLD.makeLightningBolt(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ())
