@@ -10,7 +10,8 @@
   	#resize-right{border-left:1px solid #DDD;background:#F8F8F8;background:-webkit-linear-gradient(left,#CCC,#FFF);background:-moz-linear-gradient(left,#CCC,#FFF);background:-ms-linear-gradient(left,#CCC,#FFF);background:-o-linear-gradient(left,#CCC,#FFF);background:linear-gradient(left,#CCC,#FFF);filter:progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#CCCCCC', EndColorStr='#FFFFFF', GradientType=1);width:8px;cursor:e-resize;position:absolute;height:100%;top:0;right:0;z-index:1}
   	#content-workspace{position:absolute;width:1184px;height:100%;left:8px;bottom:0;}
     #editor{position:absolute;width:492px;height:100%;left:0;bottom:0;font-family: monospace;}
-  	#console{background:#0E1628;width:692px;height:100%;position:absolute;right:0;bottom:0;font-family: monospace; font-size: 10pt; color: white;}
+  	#runbutton{position:absolute;left:440px;top:10px;font-family: monospace; z-index: 10; border: 1px solid #ccc; background-color: #eee; color: #666; padding: 2px 14px 2px 14px; font-size: 20pt;}
+    #console{background:#0E1628;width:692px;height:100%;position:absolute;right:0;bottom:0;font-family: monospace; font-size: 10pt; color: white;}
     .jqconsole {padding: 10px;}
     .jqconsole-cursor {background-color: gray;}
     .jqconsole-blurred .jqconsole-cursor {background-color: #666;}
@@ -32,6 +33,7 @@
     <div id="main" unselectable="">
       <div id="resize-left"></div>
       <div id="content-workspace">
+        <div id="runbutton">&rarr;</div>
         <div id="editor"></div>
         <div id="console"></div>
       </div>
@@ -58,6 +60,7 @@
         ws.onmessage = function(e) { jqconsole.Write(e.data.replace('\r', ''), 'jqconsole-output'); };
         ws.onclose = function() { jqconsole.Write("Connection closed\n\n", 'jqconsole-output'); };
         ws.onerror = function() { jqconsole.Write("A connectivity error occurred\n\n", 'jqconsole-output'); };
+        $("#runbutton").click(function() { ws.send(editor.getValue()); });
       });
     </script>
 </body>
