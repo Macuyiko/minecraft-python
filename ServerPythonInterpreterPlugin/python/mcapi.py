@@ -42,7 +42,14 @@ def setblock_pos(pos, ty=BlockType.Cobble):
 
 def setblock(x, y, z, ty=BlockType.Cobble):
 	WORLD.setBlockAt(x, y, z, ty)
-	
+
+def cube(px, py, pz,ty=BlockType.Cobble, size=4):
+	size = min(size, 12)
+	for x in range(size):
+		for y in range(size):
+			for z in range(size):
+				WORLD.setBlockAt(x + px, y + py, z + pz, ty)
+
 def bolt(pos):
 	WORLD.makeLightningBolt(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ())
 
