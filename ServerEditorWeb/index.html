@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title></title>
+    <style type="text/css">
+    html, body{height: 100%;margin:0}
+    #main{background:#FFF;margin:0 auto;height:100%;width:1200px;position:relative}
+    #resize-left{border-right:1px solid #DDD;background:#EEE;background:-webkit-linear-gradient(right,#CCC,#FFF);background:-moz-linear-gradient(right,#CCC,#FFF);background:-ms-linear-gradient(right,#CCC,#FFF);background:-o-linear-gradient(right,#CCC,#FFF);background:linear-gradient(right,#CCC,#FFF);filter:progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#FFFFFF', EndColorStr='#CCCCCC', GradientType=1);width:8px;position:absolute;height:100%;left:0;top:0;z-index:1}
+  	#resize-right{border-left:1px solid #DDD;background:#F8F8F8;background:-webkit-linear-gradient(left,#CCC,#FFF);background:-moz-linear-gradient(left,#CCC,#FFF);background:-ms-linear-gradient(left,#CCC,#FFF);background:-o-linear-gradient(left,#CCC,#FFF);background:linear-gradient(left,#CCC,#FFF);filter:progid:DXImageTransform.Microsoft.Gradient(StartColorStr='#CCCCCC', EndColorStr='#FFFFFF', GradientType=1);width:8px;cursor:e-resize;position:absolute;height:100%;top:0;right:0;z-index:1}
+  	#content-workspace{position:absolute;width:1184px;height:100%;left:8px;bottom:0;}
+    #editor{position:absolute;width:492px;height:100%;left:0;bottom:0;font-family: monospace;}
+  	#console{background:#0E1628;width:692px;height:100%;position:absolute;right:0;bottom:0;font-family: monospace; font-size: 10pt; color: white;}
+    .jqconsole {padding: 10px;}
+    .jqconsole-cursor {background-color: gray;}
+    .jqconsole-blurred .jqconsole-cursor {background-color: #666;}
+    .jqconsole-prompt {font-weight: 700; color: #0d0;}
+    .jqconsole-old-prompt {color: #0b0;font-weight: normal;}
+    .jqconsole-input {font-weight: 700; color: #dd0;}
+    .jqconsole-old-input {color: #bb0;font-weight: normal;}
+    .jqconsole-output {color: white;}
+	</style>
+    <script src="jquery.min.js"></script>
+    <script type="text/javascript" src="swfobject.js"></script>
+    <script type="text/javascript" src="web_socket.js"></script>
+    <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="jq-console-master/jqconsole.min.js" type="text/javascript" charset="utf-8"></script>
+    <meta charset="UTF-8">
+  </head>
+
+  <body unselectable="">
+    <div id="main" unselectable="">
+      <div id="resize-left"></div>
+      <div id="content-workspace">
+        <div id="editor"></div>
+        <div id="console"></div>
+      </div>
+      <div id="resize-right"></div>
+    </div>
+
+  <script type="text/javascript">
+      WEB_SOCKET_SWF_LOCATION = "WebSocketMain.swf";
+      WEB_SOCKET_DEBUG = true;
+      $(function () {
+      	var editor = ace.edit("editor");
+        //editor.setTheme("ace/theme/twilight");
+        editor.getSession().setMode("ace/mode/python");
+        var jqconsole = $('#console').jqconsole('Connecting to Minecraft interpreter server...\n', '', '');
+        var startPrompt = function () {
+            jqconsole.Prompt(true, function (input) {
+            ws.send(input);
+            startPrompt();
+          });
+        };
+        startPrompt();
+        var ws = new WebSocket("ws://127.0.0.1:44445/");
+        ws.onopen = function() { jqconsole.Write("Connection established\n\n", 'jqconsole-output'); };
+        ws.onmessage = function(e) { jqconsole.Write(e.data.replace('\r', ''), 'jqconsole-output'); };
+        ws.onclose = function() { jqconsole.Write("Connection closed\n\n", 'jqconsole-output'); };
+        ws.onerror = function() { jqconsole.Write("A connectivity error occurred\n\n", 'jqconsole-output'); };
+      });
+    </script>
+</body>
+</html>
