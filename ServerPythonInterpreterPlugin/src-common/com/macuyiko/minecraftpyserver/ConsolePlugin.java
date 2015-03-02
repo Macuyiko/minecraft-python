@@ -3,15 +3,12 @@ package com.macuyiko.minecraftpyserver;
 import java.io.File;
 
 import net.canarymod.plugin.Plugin;
-
 import org.bukkit.plugin.java.JavaPlugin;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
 
 public class ConsolePlugin {
-	private ConsolePlugin() {
-		
-	}
+	private ConsolePlugin() {}
 		
 	public static void log(Object plugin, String message) {
 		if (isCanary(plugin)) {
@@ -23,6 +20,8 @@ public class ConsolePlugin {
 	
 	public static void start(Object mainPlugin, int serverport, String serverpass, int serverconns) {
 		SocketServer server = new SocketServer(mainPlugin, serverport, serverconns, serverpass);
+		PyWebSocketServer webserver = new PyWebSocketServer(mainPlugin, serverport+1, serverpass);
+		webserver.start();
 		Thread t = new Thread(server);
 		t.start();
 	}
