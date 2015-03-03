@@ -13,11 +13,11 @@ public class SocketServer implements Runnable {
 	private ServerSocket listener;
 	protected ExecutorService threadPool;
 	
-	public SocketServer (Object caller, int port, int maxConnections, String password) {
+	public SocketServer (Object caller, int port, String password) {
 		this.plugin = caller;
 		this.port = port;
 		this.password = password;
-		this.threadPool = Executors.newFixedThreadPool(maxConnections);
+		this.threadPool = Executors.newCachedThreadPool();
 	}
 	
 	public void run() {

@@ -18,12 +18,16 @@ public class ConsolePlugin {
 		}
 	}
 	
-	public static void start(Object mainPlugin, int serverport, String serverpass, int serverconns) {
-		SocketServer server = new SocketServer(mainPlugin, serverport, serverconns, serverpass);
-		PyWebSocketServer webserver = new PyWebSocketServer(mainPlugin, serverport+1, serverpass);
-		webserver.start();
-		Thread t = new Thread(server);
-		t.start();
+	public static void start(Object mainPlugin, int telnetport, int websocketport, String serverpass) {
+		if (telnetport > -1) {
+			SocketServer server = new SocketServer(mainPlugin, telnetport, serverpass);
+			Thread t = new Thread(server);
+			t.start();
+		}
+		if (websocketport > -1) {
+			PyWebSocketServer webserver = new PyWebSocketServer(mainPlugin, websocketport, serverpass);
+			webserver.start();
+		}
 	}
 
 	public static boolean isCanary(Object plugin) {
