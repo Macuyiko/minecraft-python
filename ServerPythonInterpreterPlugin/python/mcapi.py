@@ -51,7 +51,7 @@ def getplayer(name):
 
 def randomplayer():
 	pl = SERVER.getPlayerNameList()
-	return player(choice(pl))
+	return getplayer(choice(pl))
 
 def yell(message):
 	SERVER.broadcastMessage(message)
@@ -69,7 +69,7 @@ def explosion(*args, **kwargs):
 
 def teleport(*args, **kwargs):
 	r = parseargswithpos(args, kwargs, ledger={'whom':['whom', 0, 'GameStartSchool']})
-	someone = player(r['whom'])
+	someone = getplayer(r['whom'])
 	someone.teleportTo(r['x'], r['y'], r['z'])
 
 def setblock(*args, **kwargs):
