@@ -88,7 +88,6 @@ public class PyWebSocketServer extends WebSocketServer {
 		boolean more;
 		if (message.contains("\n")) {
 			more = parse(interpreter, message, true);
-			interpreter.exec(message);
 		} else {
 			buffers.put(ws, buffers.get(ws)+"\n"+message); 
 			more = parse(interpreter, buffers.get(ws), false);
