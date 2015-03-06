@@ -17,11 +17,11 @@ public class MainPlugin extends JavaPlugin {
 	public void onEnable() {
 		getLogger().info("Loading Python Console");
 		try {
-			int serverport = getConfig().getInt("pythonconsole.serverconsole.port", 44444);
-			String serverpass = getConfig().getString("pythonconsole.serverconsole.password", "swordfish");
-			int serverconns = getConfig().getInt("pythonconsole.serverconsole.maxconnections", 10);
-			SetupUtils.setup();
-			ConsolePlugin.start(this, serverport, serverpass, serverconns);
+			int tcpsocketserverport = getConfig().getInt("pythonconsole.serverconsole.telnetport", 44444);
+    		int websocketserverport = getConfig().getInt("pythonconsole.serverconsole.websocketport", 44445);
+    		String serverpass = getConfig().getString("pythonconsole.serverconsole.password", "swordfish");
+    		SetupUtils.setup();
+			ConsolePlugin.start(this, tcpsocketserverport, websocketserverport, serverpass);
 		} catch (IOException e) {
 			getLogger().severe(e.getMessage());
 			return;

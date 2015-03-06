@@ -17,12 +17,12 @@ public class MainPlugin extends Plugin {
     public boolean enable() {
     	getLogman().info("Loading Python Console");
     	try {
-    		int serverport = getConfig().getInt("pythonconsole.serverconsole.port", 44444);
+    		int tcpsocketserverport = getConfig().getInt("pythonconsole.serverconsole.telnetport", 44444);
+    		int websocketserverport = getConfig().getInt("pythonconsole.serverconsole.websocketport", 44445);
     		String serverpass = getConfig().getString("pythonconsole.serverconsole.password", "swordfish");
-    		int serverconns = getConfig().getInt("pythonconsole.serverconsole.maxconnections", 10);
     		getConfig().save();
     		SetupUtils.setup();
-    		ConsolePlugin.start(this, serverport, serverpass, serverconns);
+    		ConsolePlugin.start(this, tcpsocketserverport, websocketserverport, serverpass);
 		} catch (IOException e) {
 			getLogman().error(e.getMessage());
 			return false;
