@@ -46,7 +46,7 @@ def parseargswithpos(args, kwargs, asint=True, ledger={}):
 				results[k] = v[2]
 	return results
 
-def player(name):
+def getplayer(name):
 	return SERVER.getPlayer(name)
 
 def randomplayer():
@@ -66,6 +66,13 @@ def weather(rainsnow, thunder):
 def explosion(*args, **kwargs):
 	r = parseargswithpos(args, kwargs, ledger={'power':['power', 0, 8]})
 	WORLD.makeExplosion(None, r['x'], r['y'], r['z'], r['power'], True)
+
+def teleport(*args, **kwargs):
+	yell('teleporting')
+	r = parseargswithpos(args, kwargs, ledger={'whom':['whom', 0, 'GameStartSchool']})
+	someone = player(r['whom'])
+	yell(str(someone))
+	someone.teleportTo(r['x'], r['y'], r['z'])
 
 def setblock(*args, **kwargs):
 	r = parseargswithpos(args, kwargs, ledger={'type':['type', 0, BlockType.Cobble]})
