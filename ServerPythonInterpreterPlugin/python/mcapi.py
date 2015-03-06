@@ -68,10 +68,8 @@ def explosion(*args, **kwargs):
 	WORLD.makeExplosion(None, r['x'], r['y'], r['z'], r['power'], True)
 
 def teleport(*args, **kwargs):
-	yell('teleporting')
 	r = parseargswithpos(args, kwargs, ledger={'whom':['whom', 0, 'GameStartSchool']})
 	someone = player(r['whom'])
-	yell(str(someone))
 	someone.teleportTo(r['x'], r['y'], r['z'])
 
 def setblock(*args, **kwargs):
