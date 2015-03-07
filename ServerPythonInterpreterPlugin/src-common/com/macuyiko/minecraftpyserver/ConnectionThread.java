@@ -52,7 +52,6 @@ public class ConnectionThread implements Runnable {
 			
 			out.print(">>> ");
 			while ((line = in.readLine()) != null && !line.equals("exit!")) {
-<<<<<<< HEAD
 				boolean more = false;
 				try {
 					if (line.contains("\n")) {
@@ -67,18 +66,6 @@ public class ConnectionThread implements Runnable {
 					}
 				} catch (Exception e) {
 					out.print(e.toString()+"\n");
-=======
-				boolean more;
-				if (line.contains("\n")) {
-					// As we are using readLine() above, this branch
-					// will never occur. The telnet interface is thus
-					// a pure REPL
-					more = parse(line, true);
-					interpreter.exec(line);
-				} else {
-					buffer += "\n"+line;
-					more = parse(buffer, false);
->>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 				}
 				if (!more) buffer = "";
 				if (more) out.print("... ");
@@ -96,11 +83,7 @@ public class ConnectionThread implements Runnable {
 		}
 	}
 
-<<<<<<< HEAD
 	protected boolean parse(String code, boolean exec) throws Exception {
-=======
-	protected boolean parse(String code, boolean exec) {
->>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 		if (ConsolePlugin.isCanary(this.server.getPlugin()))
 			return CanaryParser.parse(this.interpreter, code, exec);
 		else

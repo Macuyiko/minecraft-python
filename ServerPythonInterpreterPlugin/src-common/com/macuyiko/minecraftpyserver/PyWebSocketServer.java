@@ -85,7 +85,6 @@ public class PyWebSocketServer extends WebSocketServer {
 		}
 		
 		final InteractiveInterpreter interpreter = connections.get(ws);
-<<<<<<< HEAD
 		boolean more = false;
 		try {
 			if (message.contains("\n")) {
@@ -96,14 +95,6 @@ public class PyWebSocketServer extends WebSocketServer {
 			}
 		} catch (Exception e) {
 			ws.send(e.toString()+"\n");
-=======
-		boolean more;
-		if (message.contains("\n")) {
-			more = parse(interpreter, message, true);
-		} else {
-			buffers.put(ws, buffers.get(ws)+"\n"+message); 
-			more = parse(interpreter, buffers.get(ws), false);
->>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 		}
 		if (!more) buffers.put(ws, "");
 		if (more) ws.send("... ");
@@ -115,11 +106,7 @@ public class PyWebSocketServer extends WebSocketServer {
 
 	}
 
-<<<<<<< HEAD
 	protected boolean parse(InteractiveInterpreter interpreter, String code, boolean exec) throws Exception {
-=======
-	protected boolean parse(InteractiveInterpreter interpreter, String code, boolean exec) {
->>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 		if (ConsolePlugin.isCanary(this.getPlugin()))
 			return CanaryParser.parse(interpreter, code, exec);
 		else
