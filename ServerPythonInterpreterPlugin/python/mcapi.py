@@ -7,6 +7,8 @@ from net.canarymod.api.world.position import Location
 from net.canarymod.api.world.position import Position
 from net.canarymod.commandsys import Command, CommandListener, CanaryCommand
 from net.canarymod.chat import MessageReceiver
+from net.canarymod.plugin import Priority, PluginListener
+from net.canarymod.hook import Dispatcher
 
 from time import *
 from random import *
@@ -135,9 +137,29 @@ class CanaryChatCommand(CanaryCommand):
 	def execute(self, caller, parameters):
 		self.execfunc(caller, parameters)
 
+class PluginEventListener(PluginListener):
+	pass
+
+class EventDispatcher(Dispatcher):
+	def __init__(self, execfunc):
+		self.execfunc = execfunc
+	def execute(self, listener, hook):
+		self.execfunc(listener, hook)
+
 def registercommand(name, min, max, execfunc):
 	# Use like this:
 	# >>> def functiontest(caller, params):
 	# ...     yell(params[1])
 	# >>> registercommand("test", 2, 2, functiontest)
 	Canary.commands().registerCommand(CanaryChatCommand(ChatCommand(names=[name], min=min, max=max), SERVER, execfunc), SERVER, True)
+
+def registerhook(hookCls, execfunc):
+	# Use like this:
+	# >>> from net.canarymod.hook.player import BlockDestroyHook
+	# >>> def hookfunc(listener, hook):
+	# ...     yell(str(hook.getBlock().getType()))
+	# >>> registerhook(BlockDestroyHook,hookfunc)
+    Canary.hooks().registerHook(PluginEventListener(), Canary.manager().getPlugin('CanaryConsole'), hookCls, EventDispatcher(execfunc), Priority.NORMAL)
+
+
+
