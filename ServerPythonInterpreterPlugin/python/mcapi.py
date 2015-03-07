@@ -5,13 +5,10 @@ from net.canarymod.api.world.effects import Particle
 from net.canarymod.api import GameMode
 from net.canarymod.api.world.position import Location
 from net.canarymod.api.world.position import Position
-<<<<<<< HEAD
 from net.canarymod.commandsys import Command, CommandListener, CanaryCommand
 from net.canarymod.chat import MessageReceiver
 from net.canarymod.plugin import Priority, PluginListener
 from net.canarymod.hook import Dispatcher
-=======
->>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 
 from time import *
 from random import *
@@ -24,10 +21,6 @@ NOON = 6000
 EVENING = 14000
 NIGHT = 18000
 
-<<<<<<< HEAD
-=======
-
->>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 def pos(positionable):
 	return positionable.getPosition()
 
@@ -157,7 +150,7 @@ class EventDispatcher(Dispatcher):
 def registercommand(name, min, max, execfunc):
 	# Use like this:
 	# >>> def functiontest(caller, params):
-	# ...     yell(params[1])
+	# ...	 yell(params[1])
 	# >>> registercommand("test", 2, 2, functiontest)
 	Canary.commands().registerCommand(CanaryChatCommand(ChatCommand(names=[name], min=min, max=max), SERVER, execfunc), SERVER, True)
 
@@ -165,11 +158,7 @@ def registerhook(hookCls, execfunc):
 	# Use like this:
 	# >>> from net.canarymod.hook.player import BlockDestroyHook
 	# >>> def hookfunc(listener, hook):
-	# ...     yell(str(hook.getBlock().getType()))
+	# ...	 yell(str(hook.getBlock().getType()))
 	# >>> registerhook(BlockDestroyHook,hookfunc)
-    Canary.hooks().registerHook(PluginEventListener(), Canary.manager().getPlugin('CanaryConsole'), hookCls, EventDispatcher(execfunc), Priority.NORMAL)
+	Canary.hooks().registerHook(PluginEventListener(), Canary.manager().getPlugin('CanaryConsole'), hookCls, EventDispatcher(execfunc), Priority.NORMAL)
 
-
-
-=======
->>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
