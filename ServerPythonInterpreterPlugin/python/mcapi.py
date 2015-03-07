@@ -107,7 +107,6 @@ def bless(*args, **kwargs):
 def lookingat(player):
 	return LineTracer(player).getTargetBlock()
 
-<<<<<<< HEAD
 class ChatCommand(Command):
 	def __init__(self, names, min=2, max=2, permissions=[""], toolTip="", description="", parent="", helpLookup="", searchTerms=[], version=1):
 		self.var_names = names
