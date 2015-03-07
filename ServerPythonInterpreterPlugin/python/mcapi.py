@@ -5,6 +5,8 @@ from net.canarymod.api.world.effects import Particle
 from net.canarymod.api import GameMode
 from net.canarymod.api.world.position import Location
 from net.canarymod.api.world.position import Position
+from net.canarymod.commandsys import Command, CommandListener, CanaryCommand
+from net.canarymod.chat import MessageReceiver
 
 from time import *
 from random import *
@@ -16,7 +18,6 @@ MORNING = 2000
 NOON = 6000
 EVENING = 14000
 NIGHT = 18000
-
 
 def pos(positionable):
 	return positionable.getPosition()
@@ -104,3 +105,39 @@ def bless(*args, **kwargs):
 def lookingat(player):
 	return LineTracer(player).getTargetBlock()
 
+class ChatCommand(Command):
+	def __init__(self, names, min=2, max=2, permissions=[""], toolTip="", description="", parent="", helpLookup="", searchTerms=[], version=1):
+		self.var_names = names
+		self.var_min = min
+		self.var_max = max
+		self.var_permissions = permissions
+		self.var_toolTip = toolTip
+		self.var_description = description
+		self.var_parent = parent
+		self.var_helpLookup = helpLookup
+		self.var_searchTerms = searchTerms
+		self.var_version = version
+	def aliases(self): return self.var_names
+	def permissions(self): return self.var_permissions
+	def toolTip(self): return self.var_toolTip
+	def description(self): return self.var_description
+	def parent(self): return self.var_parent
+	def helpLookup(self): return self.var_helpLookup
+	def min(self): return self.var_min
+	def max(self): return self.var_max
+	def searchTerms(self): return self.var_searchTerms
+	def version(self): return self.var_version
+
+class CanaryChatCommand(CanaryCommand):
+	def __init__(self, chatcommand, owner, execfunc):
+		super(CanaryCommand, self).__init__(chatcommand, owner, None)
+		self.execfunc = execfunc
+	def execute(self, caller, parameters):
+		self.execfunc(caller, parameters)
+
+def registercommand(name, min, max, execfunc):
+	# Use like this:
+	# >>> def functiontest(caller, params):
+	# ...     yell(params[1])
+	# >>> registercommand("test", 2, 2, functiontest)
+	Canary.commands().registerCommand(CanaryChatCommand(ChatCommand(names=[name], min=min, max=max), SERVER, execfunc), SERVER, True)
