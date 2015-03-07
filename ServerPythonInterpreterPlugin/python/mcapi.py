@@ -5,10 +5,13 @@ from net.canarymod.api.world.effects import Particle
 from net.canarymod.api import GameMode
 from net.canarymod.api.world.position import Location
 from net.canarymod.api.world.position import Position
+<<<<<<< HEAD
 from net.canarymod.commandsys import Command, CommandListener, CanaryCommand
 from net.canarymod.chat import MessageReceiver
 from net.canarymod.plugin import Priority, PluginListener
 from net.canarymod.hook import Dispatcher
+=======
+>>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 
 from time import *
 from random import *
@@ -21,6 +24,10 @@ NOON = 6000
 EVENING = 14000
 NIGHT = 18000
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
 def pos(positionable):
 	return positionable.getPosition()
 
@@ -107,6 +114,7 @@ def bless(*args, **kwargs):
 def lookingat(player):
 	return LineTracer(player).getTargetBlock()
 
+<<<<<<< HEAD
 class ChatCommand(Command):
 	def __init__(self, names, min=2, max=2, permissions=[""], toolTip="", description="", parent="", helpLookup="", searchTerms=[], version=1):
 		self.var_names = names
@@ -163,3 +171,5 @@ def registerhook(hookCls, execfunc):
 
 
 
+=======
+>>>>>>> e6993e06840a2fa75ba9215a42517c98faba1526
