@@ -89,7 +89,7 @@ def cube(*args, **kwargs):
 			for z in range(size):
 				setblock(x + r['x'], y + r['y'], z + r['z'], r['type'])
 
-def bolt(*args):
+def bolt(*args, **kwargs):
 	r = parseargswithpos(args, kwargs)
 	WORLD.makeLightningBolt(r['x'], r['y'], r['z'])
 

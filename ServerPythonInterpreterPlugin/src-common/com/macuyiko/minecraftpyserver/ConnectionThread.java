@@ -39,16 +39,18 @@ public class ConnectionThread implements Runnable {
 	}
 
 	public void run() {
-		try {	
-			out.print("PASSWORD: ");
-			line = in.readLine();
-			if (!server.getPassword().equals(line)) {
-				out.println("Incorrect password!");
-				socket.close();
-				return;
-			} else {
-				out.println("Welcome! Don't forget to type 'exit!' when you want to logout");
+		try {
+			if (server.getPassword() != null && !"".equals(server.getPassword())) {
+				out.print("PASSWORD: ");
+				line = in.readLine();
+				if (!server.getPassword().equals(line)) {
+					out.println("Incorrect password!");
+					socket.close();
+					return;
+				}
 			}
+			
+			out.println("Welcome! Don't forget to type 'exit!' when you want to logout");
 			
 			out.print(">>> ");
 			while ((line = in.readLine()) != null && !line.equals("exit!")) {

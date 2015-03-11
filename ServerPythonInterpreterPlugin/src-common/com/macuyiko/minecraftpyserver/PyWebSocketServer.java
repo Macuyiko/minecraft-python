@@ -47,7 +47,7 @@ public class PyWebSocketServer extends WebSocketServer {
 		interpreter.setErr(os);
 		connections.put(ws, interpreter);
 		buffers.put(ws, "");
-		authorized.put(ws, false);
+		authorized.put(ws, password == null || "".equals(password));
 		ws.send("Login by sending 'login!<PASSWORD>'\n");
 	}
 

@@ -3,9 +3,11 @@ package com.macuyiko.minecraftpyserver;
 import java.io.File;
 
 import net.canarymod.plugin.Plugin;
+
 import org.bukkit.plugin.java.JavaPlugin;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
+import org.python.util.InteractiveInterpreter;
 
 public class ConsolePlugin {
 	private ConsolePlugin() {}
@@ -28,6 +30,22 @@ public class ConsolePlugin {
 			PyWebSocketServer webserver = new PyWebSocketServer(mainPlugin, websocketport, serverpass);
 			webserver.start();
 		}
+		File pluginsDir = new File("./python-plugins");
+		if (pluginsDir.exists() && pluginsDir.isDirectory()) {
+			final File[] files = pluginsDir.listFiles();
+			for (final File file : files) {
+			    if (!file.getName().endsWith(".py")) continue;
+		    	Thread pyPlugin = new Thread() {
+					@Override
+					public void run() {
+						InteractiveInterpreter interpreter = new InteractiveInterpreter(
+								null, ConsolePlugin.getPythonSystemState());
+						interpreter.execfile(file.getAbsolutePath());
+					}
+		    	};
+		    	pyPlugin.start();
+			} 
+		}
 	}
 
 	public static boolean isCanary(Object plugin) {
@@ -38,6 +56,7 @@ public class ConsolePlugin {
 		PySystemState sys = new PySystemState();
 		addPathToPySystemState(sys, "./");
 		addPathToPySystemState(sys, "./python/");
+		addPathToPySystemState(sys, "./python-plugins/");
 		addPathToPySystemState(sys, "./lib-canary/");
 		addPathToPySystemState(sys, "./lib-spigot/");
 		return sys;
