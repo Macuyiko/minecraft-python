@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src-canary"/>
 	<classpathentry kind="src" path="src-spigot"/>
 	<classpathentry kind="src" path="src-common"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.7.0_76"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="deps/authlib-1.5.17.jar"/>
 	<classpathentry kind="lib" path="deps/c3p0-0.9.2.1.jar"/>
 	<classpathentry kind="lib" path="deps/commons-cli-1.0.jar"/>
@@ -46,7 +46,7 @@
 	<classpathentry kind="lib" path="lib-common/jython-standalone-2.7-b1.jar"/>
 	<classpathentry kind="lib" path="lib-spigot/craftbukkit-1.8.jar"/>
 	<classpathentry kind="lib" path="lib-spigot/spigot-1.8.jar"/>
-	<classpathentry kind="lib" path="lib-canary/CanaryMod-1.2.0.jar"/>
 	<classpathentry kind="lib" path="lib-common/java_websocket.jar"/>
+	<classpathentry kind="lib" path="lib-canary/CanaryMod-1.8.0-1.2.1-20150420.131224-64-shaded.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
