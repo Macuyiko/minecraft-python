@@ -9,7 +9,7 @@ $(function () {
 	EDITOR.getSession().setMode("ace/mode/python");
 	JQCONSOLE = $('#console').jqconsole('', '', '');
 	var send = function (code) {
-		if (WEB_SOCKET !== undefined) WEB_SOCKET.send(code) 
+		if (WEB_SOCKET !== undefined) WEB_SOCKET.send(code)
 		else JQCONSOLE.Write("Not connected to any server\n\n", 'jqconsole-output');
 	}
 	var startPrompt = function () {
@@ -19,15 +19,21 @@ $(function () {
 		});
 	};
 	startPrompt();
-	$("#connectbutton").click(function() { 
+	$("#connectbutton").click(function() {
+		var host = $("#connecthost").val();
+		var port = $("#connectport").val();
+		var password = $("#connectpassword").val();
 		JQCONSOLE.Write("Connecting to server\n\n", 'jqconsole-output');
-		WEB_SOCKET = new WebSocket("ws://"+$("#connecthost").val()+":"+$("#connectport").val());
-		WEB_SOCKET.onopen = function() { JQCONSOLE.Write("Connection established\n\n", 'jqconsole-output'); };
+		WEB_SOCKET = new WebSocket("ws://"+host+":"+port);
+		WEB_SOCKET.onopen = function() {
+			send('login!'+password);
+			JQCONSOLE.Write("Connection established\n\n", 'jqconsole-output');
+        };
 		WEB_SOCKET.onmessage = function(e) { JQCONSOLE.Write(e.data.replace('\r', ''), 'jqconsole-output'); };
 		WEB_SOCKET.onclose = function() { WEB_SOCKET = undefined; JQCONSOLE.Write("Connection closed\n\n", 'jqconsole-output'); };
 		WEB_SOCKET.onerror = function() { WEB_SOCKET = undefined; JQCONSOLE.Write("A connectivity error occurred\n\n", 'jqconsole-output'); };
 	});
-	$("#runbutton").click(function() { 
+	$("#runbutton").click(function() {
 		var ct = EDITOR.getCopyText();
 		if (ct.length > 0)
 		send(ct);
