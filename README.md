@@ -122,6 +122,10 @@ you've added the `python` directory to the Canary installation directory
 as instructed above, which will load a Python file giving you access to 
 some simple, pre-defined commands.
 
+You can also use the editor in `ServerEditorJava` to do the same:
+
+![](https://camo.githubusercontent.com/84093a0cfc1102ed283644bcf356c576a7b37422/687474703a2f2f692e696d6775722e636f6d2f436b6a55716e4e2e706e67)
+
 You can also use a web based editor to connect to the websocket server, 
 see `ServerEditorWeb` to do so:
     
