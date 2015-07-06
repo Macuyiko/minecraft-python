@@ -4,6 +4,11 @@
 
 By: Seppe "Macuyiko" vanden Broucke
 
+*NOTE*: This project is now continued under the new name 
+["Jycraft"](https://github.com/Jycraft/). This repository will not 
+receive future updates and is kept here for legacy reasons.
+
+
 `MinecraftPythonConsole` is a Minecraft Canary (Spigot version available 
 too) plugin which provides server administrators with a Python 
 interpreter console which can be used to administer running servers 
