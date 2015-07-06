@@ -1,10 +1,8 @@
 # Minecraft Server Python Interpreter
 
-*Or: Jython plugin for Canary/Spigot. Or: Programming with Minecraft.*
-
 By: Seppe "Macuyiko" vanden Broucke
 
-*NOTE*: This project is now continued under the new name 
+**NOTE**: This project is now continued under the new name 
 ["Jycraft"](https://github.com/Jycraft/). This repository will not 
 receive future updates and is kept here for legacy reasons.
 
