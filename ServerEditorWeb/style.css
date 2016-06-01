@@ -2,6 +2,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 
@@ -12,7 +13,7 @@ html, body {
     text-align: center;
     padding: 8px;
     position: absolute;
-    height: 30px;
+    height: 40px;
     width: 100%;
 }
 
@@ -38,22 +39,25 @@ html, body {
 #content {
     position: absolute;
     width: 100%;
-    top: 49px;
-    bottom: 200px;
-}
-
-#footer-wrapper {
-    position: absolute;
-    height: 200px;
-    width: 100%;
+    top: 59px;
     bottom: 0;
 }
 
 #editor {
+    font-family: monospace;
+    background: #FFF;
+    height: 100%;
+    width: 50%;
+    float: left;
+}
+
+#console {
     position: relative;
     font-family: monospace;
     background: #FFF;
     height: 100%;
+    width: 50%;
+    float: left;
 }
 
 .jqconsole {

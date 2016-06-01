@@ -1,4 +1,4 @@
-bukkitconsole:
+pythonconsole:
  guiconsole: 
   enabled: true
  serverconsole:

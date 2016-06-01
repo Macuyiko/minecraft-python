@@ -1,5 +1,0 @@
-main-class = com.macuyiko.canaryconsole.MainPlugin
-name = CanaryConsole
-author = Seppe vanden Broucke
-version = 1.0.0
-isLibrary = false
