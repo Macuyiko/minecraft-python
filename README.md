@@ -2,8 +2,6 @@
 
 By: Seppe "Macuyiko" vanden Broucke
 
-**NOTE**: This project is now continued under the new name ["Jycraft"](https://github.com/Jycraft/). This repository is still being updated, but it's goals are less ambitious (i.e. the goal here is to provide a simple Minecraft python interface without advanced features, but which should make it easy to use as a starting point for derived works).
-
 `minecraft-python` is a Spigot plugin which provides server administrators with a Python interpreter console which can be used to administer running servers using the full arsenal provided by the Spigot API. It should be relatively easy to port to other Minecraft servers (Canary support was dropped since the project has ceased activity).
 
 More background information on how this project came to be can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html).
