@@ -18,7 +18,7 @@ public class PyTelnetServerThread implements Runnable {
 	protected String buffer;
 	protected PrintStream out;
 	protected BufferedReader in;
-	
+
 	public PyTelnetServerThread(Socket socket, PyTelnetServer socketServer) {
 		this.socket = socket;
 		this.server = socketServer;
@@ -37,36 +37,32 @@ public class PyTelnetServerThread implements Runnable {
 
 	public void run() {
 		try {
-			if (server.getPassword() != null && !"".equals(server.getPassword())) {
-				out.print("PASSWORD: ");
-				line = in.readLine();
-				if (!server.getPassword().equals(line)) {
-					out.println("Incorrect password!");
-					socket.close();
-					return;
-				}
-			}
-			
-			out.println("Welcome! Don't forget to type 'exit!' when you want to logout");
-			
+			out.println("Welcome! Don't forget to type '!exit' when you want to logout");
+
 			out.print(">>> ");
-			while ((line = in.readLine()) != null && !line.equals("exit!")) {
+			while ((line = in.readLine()) != null) {
 				if (!interpreter.isAlive()) {
 					out.print("\nInterpreter timeout");
 					break;
 				}
+				if (line.equals("!exit")) {
+					break;
+				}
+				if (line.equals("!restart")) {
+					this.interpreter = new PyInterpreter();
+				}
 				boolean more = false;
 				try {
-			    	if (line.contains("\n")) {
-						// As we are using readLine(), this branch will never occur
-						// The telnet interface is thus a pure REPL
-			    		more = server.getPlugin().parse(interpreter, line, true);
+					if (line.contains("\n")) {
+						// As we are using readLine(), this branch will never
+						// occur; the telnet interface is thus a pure REPL
+						more = server.getPlugin().parse(interpreter, line, true);
 					} else {
-						buffer += "\n"+line;
+						buffer += "\n" + line;
 						more = server.getPlugin().parse(interpreter, buffer, false);
 					}
 				} catch (PyException e) {
-					out.print(e.toString()+"\n");
+					out.print(e.toString() + "\n");
 				}
 				if (!more) {
 					buffer = "";
@@ -75,7 +71,7 @@ public class PyTelnetServerThread implements Runnable {
 				} else {
 					out.print("... ");
 				}
-			}			
+			}
 			socket.close();
 		} catch (IOException ioe) {
 			System.out.println("IOException on socket listen: " + ioe);
@@ -84,9 +80,9 @@ public class PyTelnetServerThread implements Runnable {
 			try {
 				this.out.close();
 				this.in.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+			}
 		}
 	}
-	
-	
+
 }

@@ -1,3 +1,13 @@
 name: Spigot Jython Console
-main: com.macuyiko.spigot.SpigotPlugin
-version: 0.2
+main: com.macuyiko.minecraftpyserver.SpigotPlugin
+version: 0.4
+commands:
+  py:
+    description: Execute python code
+    usage: /py code
+  pyrestart:
+    description: Restart your Python environment
+    usage: /pyrestart
+  pyload:
+    description: Execute a Python file
+    usage: /pyload file

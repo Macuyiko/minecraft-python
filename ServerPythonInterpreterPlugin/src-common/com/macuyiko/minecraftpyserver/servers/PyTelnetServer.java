@@ -11,24 +11,21 @@ import com.macuyiko.minecraftpyserver.PyPlugin;
 public class PyTelnetServer implements Runnable {
 	private PyPlugin plugin;
 	private int port;
-	private String password;
 	private ServerSocket listener;
 	protected ExecutorService threadPool;
-	
-	public PyTelnetServer (PyPlugin caller, int port, String password) {
+
+	public PyTelnetServer(PyPlugin caller, int port) {
 		this.plugin = caller;
 		this.port = port;
-		this.password = password;
 		this.threadPool = Executors.newCachedThreadPool();
 	}
-	
+
 	public void run() {
 		try {
 			listener = new ServerSocket(port);
-			Socket clientSocket ;
+			Socket clientSocket;
 			while (true) {
 				clientSocket = listener.accept();
-				
 				threadPool.execute(new PyTelnetServerThread(clientSocket, this));
 			}
 		} catch (IOException ioe) {
@@ -37,13 +34,10 @@ public class PyTelnetServer implements Runnable {
 		} finally {
 			try {
 				listener.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+			}
 		}
 
-	}
-
-	public String getPassword() {
-		return password;
 	}
 
 	public ServerSocket getListener() {

@@ -1,8 +1,6 @@
 pythonconsole:
- guiconsole: 
-  enabled: true
  serverconsole:
-  enabled: true
-  password: swordfish
-  port: 44444
+  telnetport: 44444
+  websocketport: 44445
+  enablechatcommands: true
   maxconnections: 10

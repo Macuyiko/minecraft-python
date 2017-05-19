@@ -18,20 +18,16 @@ import com.macuyiko.minecraftpyserver.PyPlugin;
 
 public class PyWebSocketServer extends WebSocketServer {
 	private PyPlugin plugin;
-	private String password;
 	private Map<WebSocket, PyInterpreter> connections;
 	private Map<WebSocket, MyOutputStream> outstreams;
 	private Map<WebSocket, String> buffers;
-	private Map<WebSocket, Boolean> authorized;
 	
-	public PyWebSocketServer(PyPlugin caller, int port, String password) {
+	public PyWebSocketServer(PyPlugin caller, int port) {
 		super(new InetSocketAddress(port));
 		this.plugin = caller;
-		this.password = password;
 		this.connections = new HashMap<WebSocket, PyInterpreter>();
 		this.outstreams = new HashMap<WebSocket, MyOutputStream>();
 		this.buffers = new HashMap<WebSocket, String>();
-		this.authorized = new HashMap<WebSocket, Boolean>();
 	}
 	
 	public void cleanup() {
@@ -44,12 +40,21 @@ public class PyWebSocketServer extends WebSocketServer {
 		}
 	}
 	
+	public void setupInterpreter(WebSocket ws) {
+		PyInterpreter interpreter = new PyInterpreter();
+		MyOutputStream os = new MyOutputStream(ws);
+		interpreter.setOut(os);
+		interpreter.setErr(os);
+		outstreams.put(ws, os);
+		connections.put(ws, interpreter);
+		buffers.put(ws, "");
+	}
+	
 	public void close(WebSocket ws) {
 		if (connections.containsKey(ws))
 			connections.get(ws).cleanAndClose();
 		connections.remove(ws);
 		buffers.remove(ws);
-		authorized.remove(ws);
 		ws.close(0);
 	}
 
@@ -58,15 +63,7 @@ public class PyWebSocketServer extends WebSocketServer {
 		plugin.log("New websocket connection");
 		cleanup();
 		plugin.log("Starting interpreter");
-		PyInterpreter interpreter = new PyInterpreter();
-		MyOutputStream os = new MyOutputStream(ws);
-		interpreter.setOut(os);
-		interpreter.setErr(os);
-		outstreams.put(ws, os);
-		connections.put(ws, interpreter);
-		buffers.put(ws, "");
-		authorized.put(ws, password == null || "".equals(password));
-		ws.send("Login by sending 'login!<PASSWORD>'\n");
+		setupInterpreter(ws);
 	}
 
 	@Override
@@ -76,27 +73,13 @@ public class PyWebSocketServer extends WebSocketServer {
 
 	@Override
 	public void onMessage(WebSocket ws, final String message) {
-		boolean auth = authorized.get(ws);
-		
-		if (message.startsWith("login!")) {
-			String p = message.split("!")[1];
-			if (!password.equals(p)) {
-				ws.send("Incorrect password!\n");
-			} else {
-				authorized.put(ws, true);
-				ws.send("Welcome!\n");
-				ws.send(">>> ");
-			}
-			return;
-		}
-		
-		if (message.equals("exit!")) {
+		if (message.equals("!exit")) {
 			ws.close(CloseFrame.NORMAL);
 			return;
 		}
-		
-		if (!auth) {
-			ws.send("Not authorized, login first by sending 'login!<PASSWORD>'\n");
+		if (message.equals("!restart")) {
+			plugin.log("Restarting interpreter");
+			setupInterpreter(ws);
 			return;
 		}
 		

@@ -103,8 +103,7 @@ public class PyInterpreter extends InteractiveInterpreter {
 			File[] files = dependencyDirectory.listFiles();
 			for (int i = 0; i < files.length; i++) {
 			    if (files[i].getName().endsWith(".jar")) {
-			    	sys.path.append(new PyString(
-			    			new File(path+files[i].getName()).getAbsolutePath()));
+			    	sys.path.append(new PyString(new File(path+files[i].getName()).getAbsolutePath()));
 			    }
 			}
 		} catch (Exception e){}

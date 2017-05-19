@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src-spigot"/>
 	<classpathentry kind="src" path="src-common"/>
 	<classpathentry kind="lib" path="lib-common/java_websocket.jar"/>
 	<classpathentry kind="lib" path="lib-common/jython-standalone-2.7.0.jar"/>
-	<classpathentry kind="lib" path="lib-spigot/spigot-1.9.4.jar"/>
+	<classpathentry kind="lib" path="lib-spigot/spigot-1.11.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
