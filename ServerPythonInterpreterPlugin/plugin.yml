@@ -1,4 +1,4 @@
-name: Spigot Jython Console
+name: MinecraftPyServer
 main: com.macuyiko.minecraftpyserver.SpigotPlugin
 version: 0.4
 commands:

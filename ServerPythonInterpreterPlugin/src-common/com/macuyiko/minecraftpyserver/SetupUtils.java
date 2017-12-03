@@ -16,8 +16,16 @@ import java.util.jar.JarFile;
 
 public class SetupUtils {
 	public static void setup() throws IOException {
-		unpack();
-
+		unpack(".", "lib-common/");
+		unpack(".", "python/");
+		
+		File me = new java.io.File(SetupUtils.class.getProtectionDomain()
+				  .getCodeSource()
+				  .getLocation()
+				  .getPath());
+		
+		addURL(me.toURI().toURL());
+		
 		File dependencyDirectory = new File("lib-common/");
 		if (!dependencyDirectory.exists() || !dependencyDirectory.isDirectory())
 	        return;
@@ -27,11 +35,6 @@ public class SetupUtils {
 		    	addURL(new File(dependencyDirectory.getName()+"/"+files[i].getName()).toURI().toURL());
 		    }
 		}
-	}
-
-	public static void unpack() {
-		unpack(".", "lib-common/");
-		unpack(".", "python/");
 	}
 	
 	public static void unpack(String destDir, String prefix) {

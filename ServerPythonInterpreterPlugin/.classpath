@@ -2,8 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src-common"/>
 	<classpathentry kind="lib" path="lib-common/java_websocket.jar"/>
-	<classpathentry kind="lib" path="lib-common/jython-standalone-2.7.0.jar"/>
-	<classpathentry kind="lib" path="lib-spigot/spigot-1.11.2.jar"/>
+	<classpathentry kind="lib" path="lib-common/py4j0.10.6.jar"/>
+	<classpathentry kind="lib" path="lib-spigot/spigot-1.12.2.jar"/>
+	<classpathentry kind="lib" path="lib-common/jython-standalone-2.7.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

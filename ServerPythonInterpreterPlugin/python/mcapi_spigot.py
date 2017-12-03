@@ -1,5 +1,7 @@
 print 'Importing command definitions...'
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from org.bukkit import Bukkit
 from org.bukkit import Location
 from org.bukkit import Material
@@ -15,7 +17,7 @@ from random import *
 
 SERVER 	= Bukkit.getServer()
 WORLD 	= SERVER.getWorlds().get(0)
-PLUGIN  = SERVER.getPluginManager().getPlugin('Spigot_Jython_Console')
+PLUGIN  = SERVER.getPluginManager().getPlugin('MinecraftPyServer')
 
 _commandMapField = SERVER.getClass().getDeclaredField("commandMap")
 _commandMapField.setAccessible(True)
@@ -33,7 +35,6 @@ class SpigotRunnable(BukkitRunnable):
     def __init__(self, execfunc):
         super(BukkitRunnable, self).__init__()
         self.execfunc = execfunc
-
     def run(self):
         self.execfunc()
         
@@ -72,7 +73,6 @@ class SpigotCommand(Command):
     def __init__(self, name, execfunc):
         Command.__init__(self, name)
         self.execfunc = execfunc
-
     def execute(self, caller, label, parameters):
         self.execfunc(caller, parameters)
 
@@ -90,7 +90,6 @@ def unregister_command(name):
 class EventListener(Listener):
     def __init__(self, func):
         self.func = func
-
     def execute(self, event):
         self.func(event)
 
