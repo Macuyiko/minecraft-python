@@ -39,32 +39,32 @@ class SpigotRunnable(BukkitRunnable):
         self.execfunc()
         
 
-def run_asynchronous(execfunc):
+def run_local_thread(execfunc):
     Thread(target=execfunc).start()
 
 
-def asynchronous():
-    def actual_decorator(f):
-        @wraps(f)
-        def wrapped_f(*args, **kwargs):
-            g = lambda: f(*args, **kwargs)
-            run_asynchronous(g)
-        return wrapped_f
-    return actual_decorator
-
-
-def run_synchronous(execfunc, delay=None):
+def run_spigot_thread(execfunc, delay=None):
     spigot_runnable = SpigotRunnable(execfunc)
     if delay is None: spigot_runnable.runTask(PLUGIN)
     else: spigot_runnable.runTaskLater(PLUGIN, delay)
 
 
-def synchronous(delay=None):
+def local_threaded():
     def actual_decorator(f):
         @wraps(f)
         def wrapped_f(*args, **kwargs):
             g = lambda: f(*args, **kwargs)
-            run_synchronous(g, delay)
+            run_local_thread(g)
+        return wrapped_f
+    return actual_decorator
+
+
+def spigot_threaded(delay=None):
+    def actual_decorator(f):
+        @wraps(f)
+        def wrapped_f(*args, **kwargs):
+            g = lambda: f(*args, **kwargs)
+            run_spigot_thread(g, delay)
         return wrapped_f
     return actual_decorator
 
@@ -163,26 +163,26 @@ def yell(message):
     SERVER.broadcastMessage(message)
 
 
-@synchronous()
+@spigot_threaded()
 def time(time=None):
     if time is None:
         return WORLD.getTime()
     WORLD.setTime(time)
 
 
-@synchronous()
+@spigot_threaded()
 def weather(rainsnow=False, thunder=False):
     WORLD.setStorm(rainsnow)
     WORLD.setThundering(thunder)
 
 
-@synchronous()
+@spigot_threaded()
 def explosion(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={'power':['power', 0, 8]})
     WORLD.createExplosion(r['x'], r['y'], r['z'], r['power'], True)
 
 
-@synchronous()
+@spigot_threaded()
 def teleport(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={'whom':['whom', 0, 'macuyiko']})
     someone = getplayer(r['whom'])
@@ -194,13 +194,13 @@ def getblock(*args, **kwargs):
     return WORLD.getBlockAt(r['x'], r['y'], r['z'])
 
 
-@synchronous()
+@spigot_threaded()
 def setblock(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={'type':['type', 0, Material.COBBLESTONE]})
     WORLD.getBlockAt(r['x'], r['y'], r['z']).setType(r['type'])
 
 
-@synchronous()
+@spigot_threaded()
 def line_x(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
@@ -210,7 +210,7 @@ def line_x(*args, **kwargs):
         setblock(s + r['x'], r['y'], r['z'], r['type'])
 
 
-@synchronous()
+@spigot_threaded()
 def line_y(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
@@ -220,7 +220,7 @@ def line_y(*args, **kwargs):
         setblock(r['x'], s + r['y'], r['z'], r['type'])
         
 
-@synchronous()
+@spigot_threaded()
 def line_z(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
@@ -230,7 +230,7 @@ def line_z(*args, **kwargs):
         setblock(r['x'], r['y'], s + r['z'], r['type'])
         
         
-@synchronous()
+@spigot_threaded()
 def cube(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
@@ -242,13 +242,13 @@ def cube(*args, **kwargs):
                 setblock(x + r['x'], y + r['y'], z + r['z'], r['type'])
 
 
-@synchronous()
+@spigot_threaded()
 def bolt(*args, **kwargs):
     r = parseargswithpos(args, kwargs)
     WORLD.strikeLightning(pos(r['x'], r['y'], r['z']))
 
 
-@synchronous()
+@spigot_threaded()
 def bless(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Effect.COLOURED_DUST],
