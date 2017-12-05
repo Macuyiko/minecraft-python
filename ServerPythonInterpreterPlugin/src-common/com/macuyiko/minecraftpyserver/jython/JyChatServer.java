@@ -1,4 +1,4 @@
-package com.macuyiko.minecraftpyserver.servers;
+package com.macuyiko.minecraftpyserver.jython;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -6,24 +6,23 @@ import java.util.HashMap;
 import java.util.Map;
 import org.python.core.PyException;
 
-import com.macuyiko.minecraftpyserver.PyInterpreter;
-import com.macuyiko.minecraftpyserver.PyPlugin;
+import com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin;
 
-public class PyChatServer {
-	private PyPlugin plugin;
-	private Map<String, PyInterpreter> players;
+public class JyChatServer {
+	private MinecraftPyServerPlugin plugin;
+	private Map<String, JyInterpreter> players;
 	private Map<String, MyOutputStream> outstreams;
 	private Map<String, String> buffers;
 	
-	public PyChatServer(PyPlugin caller) {
+	public JyChatServer(MinecraftPyServerPlugin caller) {
 		this.plugin = caller;
-		this.players = new HashMap<String, PyInterpreter>();
+		this.players = new HashMap<String, JyInterpreter>();
 		this.outstreams = new HashMap<String, MyOutputStream>();
 		this.buffers = new HashMap<String, String>();
 	}
 		
 	public void setupInterpreter(String player) {
-		PyInterpreter interpreter = new PyInterpreter();
+		JyInterpreter interpreter = new JyInterpreter();
 		MyOutputStream os = new MyOutputStream(this, player);
 		interpreter.setOut(os);
 		interpreter.setErr(os);
@@ -38,14 +37,14 @@ public class PyChatServer {
 			setupInterpreter(player);
 		}
 				
-		final PyInterpreter interpreter = players.get(player);
+		final JyInterpreter interpreter = players.get(player);
 		boolean more = false;
 		try {
 			if (message.contains("\n")) {
-				more = plugin.parse(interpreter, message, true);
+				more = JyParser.parse(interpreter, message, true);
 			} else {
 				buffers.put(player, buffers.get(player)+"\n"+message); 
-				more = plugin.parse(interpreter, buffers.get(player), false);
+				more = JyParser.parse(interpreter, buffers.get(player), false);
 			}
 		} catch (PyException e) {
 			answer(player, e.toString()+"\n");
@@ -62,10 +61,10 @@ public class PyChatServer {
 			answer(player, "Starting Python... this can take a few seconds\n");
 			setupInterpreter(player);
 		}
-		final PyInterpreter interpreter = players.get(player);
+		final JyInterpreter interpreter = players.get(player);
 		interpreter.resetbuffer();
 		try {
-			plugin.parse(interpreter, script);
+			JyParser.parse(interpreter, script);
 		} catch (PyException e) {
 			answer(player, e.toString()+"\n");
 		}
@@ -80,8 +79,8 @@ public class PyChatServer {
 	public class MyOutputStream extends OutputStream {
 		String player;
 		StringBuffer buffer = new StringBuffer("");
-		PyChatServer server;
-		public MyOutputStream(PyChatServer server, String player) {
+		JyChatServer server;
+		public MyOutputStream(JyChatServer server, String player) {
 			this.player = player;
 			this.server = server;
 		}
@@ -105,5 +104,7 @@ public class PyChatServer {
 			buffer.delete(0, buffer.length());
 		}
 	}
+	
+
 
 }

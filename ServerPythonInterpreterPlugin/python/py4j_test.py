@@ -2,14 +2,10 @@ from py4j.java_gateway import JavaGateway, java_import, get_field, CallbackServe
 from py4j.clientserver import ClientServer, JavaParameters, PythonParameters
 import uuid
 import time
-import logging
+import threading
+import sys
 
-logger = logging.getLogger("py4j.java_gateway")
-logger.setLevel(10)
-consoleHandler = logging.StreamHandler()
-logger.addHandler(consoleHandler)
-
-# ------------------------------------------------------
+_async_registry_lock = threading.Lock()
 _async_registry = {}
     
 gateway = ClientServer(
@@ -17,35 +13,53 @@ gateway = ClientServer(
     python_parameters=PythonParameters(daemonize=True))
 
 def shutdown_when_done():
-    while _async_registry:
-        print(_async_registry)
-        time.sleep(1)
-    print('Shutting down connection')
+    amount = 1
+    while amount > 0:
+        _async_registry_lock.acquire()
+        try:
+            amount = len(_async_registry)
+        finally:
+            _async_registry_lock.release()
+        time.sleep(5)
+        print('Waiting for callbacks...', amount, 'left')
+    print('All done! Shutting down connection')
     gateway.close()
-    print('Done')
     
 class AsyncTask(object):
     def __init__(self):
         self.id = uuid.uuid4()
-        _async_registry[self.id] = self
+        _async_registry_lock.acquire()
+        try:
+            _async_registry[self.id] = self
+        finally:
+            _async_registry_lock.release()
     def remove(self):
-        del _async_registry[self.id]
+        _async_registry_lock.acquire()
+        try:
+            del _async_registry[self.id]
+        finally:
+            _async_registry_lock.release()
 
 class PythonCallbackImpl(AsyncTask):
     def __init__(self, execfunc):
         super().__init__()
         self.execfunc = execfunc
     def callback(self):
-        print('[PythonCallbackImpl] notified from Java')
-        self.execfunc()
-        self.remove()
+        ret = True
+        try:
+            self.execfunc()
+        except:
+            ret = False
+        finally:
+            self.remove()
+            return ret
     class Java:
-        implements = ["com.macuyiko.minecraftpyserver.javabridge.PythonCallback"]
+        implements = ["com.macuyiko.minecraftpyserver.py4j.PyCallback"]
 
 # ------------------------------------------------------
 
 java_import(gateway.jvm, 'org.bukkit.*')
-java_import(gateway.jvm, 'com.macuyiko.minecraftpyserver.javabridge.*')
+java_import(gateway.jvm, 'com.macuyiko.minecraftpyserver.py4j.*')
 
 BUKKIT = gateway.jvm.Bukkit
 SERVER = BUKKIT.getServer()
@@ -54,11 +68,12 @@ PLUGIN = SERVER.getPluginManager().getPlugin('MinecraftPyServer')
 
 p = SERVER.getPlayer("Macuyiko")
 print(p.getLocation())
-
+print(BUKKIT)
 
 def run_synchronous(execfunc, delay=None):
     python_callback = PythonCallbackImpl(execfunc)
     spigot_runnable = gateway.jvm.SpigotRunnable(python_callback)
+    print(spigot_runnable)
     if delay is None: spigot_runnable.runTask(PLUGIN)
     else: spigot_runnable.runTaskLater(PLUGIN, delay)
 
@@ -71,5 +86,4 @@ def fun():
 
 run_synchronous(fun, None)
 
-time.sleep(5)
 shutdown_when_done()

@@ -1,4 +1,4 @@
-package com.macuyiko.minecraftpyserver.servers;
+package com.macuyiko.minecraftpyserver.jython;
 
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -13,26 +13,25 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.python.core.PyException;
 
-import com.macuyiko.minecraftpyserver.PyInterpreter;
-import com.macuyiko.minecraftpyserver.PyPlugin;
+import com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin;
 
-public class PyWebSocketServer extends WebSocketServer {
-	private PyPlugin plugin;
-	private Map<WebSocket, PyInterpreter> connections;
+public class JyWebSocketServer extends WebSocketServer {
+	private MinecraftPyServerPlugin plugin;
+	private Map<WebSocket, JyInterpreter> connections;
 	private Map<WebSocket, MyOutputStream> outstreams;
 	private Map<WebSocket, String> buffers;
 	
-	public PyWebSocketServer(PyPlugin caller, int port) {
+	public JyWebSocketServer(MinecraftPyServerPlugin caller, int port) {
 		super(new InetSocketAddress(port));
 		this.plugin = caller;
-		this.connections = new HashMap<WebSocket, PyInterpreter>();
+		this.connections = new HashMap<WebSocket, JyInterpreter>();
 		this.outstreams = new HashMap<WebSocket, MyOutputStream>();
 		this.buffers = new HashMap<WebSocket, String>();
 	}
 	
 	public void cleanup() {
-		Set<Entry<WebSocket, PyInterpreter>> entries = connections.entrySet();
-		for (Entry<WebSocket, PyInterpreter> e : entries){
+		Set<Entry<WebSocket, JyInterpreter>> entries = connections.entrySet();
+		for (Entry<WebSocket, JyInterpreter> e : entries){
 			if (!connections.get(e.getKey()).isAlive()) {
 				plugin.log("Cleaning up an idle connection");
 				close(e.getKey());
@@ -41,7 +40,7 @@ public class PyWebSocketServer extends WebSocketServer {
 	}
 	
 	public void setupInterpreter(WebSocket ws) {
-		PyInterpreter interpreter = new PyInterpreter();
+		JyInterpreter interpreter = new JyInterpreter();
 		MyOutputStream os = new MyOutputStream(ws);
 		interpreter.setOut(os);
 		interpreter.setErr(os);
@@ -83,14 +82,14 @@ public class PyWebSocketServer extends WebSocketServer {
 			return;
 		}
 		
-		final PyInterpreter interpreter = connections.get(ws);
+		final JyInterpreter interpreter = connections.get(ws);
 		boolean more = false;
 		try {
 			if (message.contains("\n")) {
-				more = plugin.parse(interpreter, message, true);
+				more = JyParser.parse(interpreter, message, true);
 			} else {
 				buffers.put(ws, buffers.get(ws)+"\n"+message); 
-				more = plugin.parse(interpreter, buffers.get(ws), false);
+				more = JyParser.parse(interpreter, buffers.get(ws), false);
 			}
 		} catch (PyException e) {
 			ws.send(e.toString()+"\n");

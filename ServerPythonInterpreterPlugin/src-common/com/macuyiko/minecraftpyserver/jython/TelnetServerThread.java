@@ -1,4 +1,4 @@
-package com.macuyiko.minecraftpyserver.servers;
+package com.macuyiko.minecraftpyserver.jython;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,22 +8,20 @@ import java.net.Socket;
 
 import org.python.core.PyException;
 
-import com.macuyiko.minecraftpyserver.PyInterpreter;
-
-public class PyTelnetServerThread implements Runnable {
+public class TelnetServerThread implements Runnable {
 	protected Socket socket;
-	protected PyTelnetServer server;
-	protected PyInterpreter interpreter;
+	protected TelnetServer server;
+	protected JyInterpreter interpreter;
 	protected String line;
 	protected String buffer;
 	protected PrintStream out;
 	protected BufferedReader in;
 
-	public PyTelnetServerThread(Socket socket, PyTelnetServer socketServer) {
+	public TelnetServerThread(Socket socket, TelnetServer socketServer) {
 		this.socket = socket;
 		this.server = socketServer;
 		this.buffer = "";
-		this.interpreter = new PyInterpreter();
+		this.interpreter = new JyInterpreter();
 		try {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			this.out = new PrintStream(this.socket.getOutputStream());
@@ -49,17 +47,17 @@ public class PyTelnetServerThread implements Runnable {
 					break;
 				}
 				if (line.equals("!restart")) {
-					this.interpreter = new PyInterpreter();
+					this.interpreter = new JyInterpreter();
 				}
 				boolean more = false;
 				try {
 					if (line.contains("\n")) {
 						// As we are using readLine(), this branch will never
 						// occur; the telnet interface is thus a pure REPL
-						more = server.getPlugin().parse(interpreter, line, true);
+						more = JyParser.parse(interpreter, line, true);
 					} else {
 						buffer += "\n" + line;
-						more = server.getPlugin().parse(interpreter, buffer, false);
+						more = JyParser.parse(interpreter, buffer, false);
 					}
 				} catch (PyException e) {
 					out.print(e.toString() + "\n");

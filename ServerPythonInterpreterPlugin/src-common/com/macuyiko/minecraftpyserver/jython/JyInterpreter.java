@@ -1,4 +1,4 @@
-package com.macuyiko.minecraftpyserver;
+package com.macuyiko.minecraftpyserver.jython;
 
 import java.io.File;
 import java.util.Iterator;
@@ -10,28 +10,49 @@ import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.InteractiveInterpreter;
 
-public class PyInterpreter extends InteractiveInterpreter {
+public class JyInterpreter extends InteractiveInterpreter {
 
 	private static final AtomicInteger sequence = new AtomicInteger();
-	private static final ConcurrentHashMap<Integer,PyInterpreter> interpreters = 
-			new ConcurrentHashMap<Integer,PyInterpreter>();
+	private static final ConcurrentHashMap<Integer,JyInterpreter> interpreters = 
+			new ConcurrentHashMap<Integer,JyInterpreter>();
 	private final int id;
 	private long lastCall;
+	private boolean permanent;
+	private boolean runplugins;
 	
 	private static final int IDLE_TIMEOUT = 60 * 15;
 	
-	public PyInterpreter() {
+	public JyInterpreter() {
+		this(false, false);
+	}
+	
+	public JyInterpreter(boolean permanent, boolean runplugins) {
 		super(null, getPythonSystemState());
 		this.id = sequence.incrementAndGet();
 		interpreters.put(this.id, this);
 		this.lastCall = System.currentTimeMillis();
+		this.permanent = permanent;
+		this.runplugins = runplugins;
+		
+		if (this.runplugins) {
+			try {
+				File dependencyDirectory = new File("./python-plugins/");
+				File[] files = dependencyDirectory.listFiles();
+				for (int i = 0; i < files.length; i++) {
+				    if (files[i].getName().endsWith(".py")) {
+				    	this.parse(files[i]);
+				    	permanent = true;
+				    }
+				}
+			} catch (Exception e){}
+		}
 	}
 	
 	public static void cleanIdle() {
-		Iterator<PyInterpreter> it = interpreters.values().iterator();
+		Iterator<JyInterpreter> it = interpreters.values().iterator();
 		while (it.hasNext()) {
-			PyInterpreter interpreter = it.next();
-			if (interpreter.getSecondsPassedSinceLastCall() >= IDLE_TIMEOUT) {
+			JyInterpreter interpreter = it.next();
+			if (!interpreter.isPermanent() && interpreter.getSecondsPassedSinceLastCall() >= IDLE_TIMEOUT) {
 				interpreter.cleanAndClose();
 			}
 		}
@@ -42,6 +63,10 @@ public class PyInterpreter extends InteractiveInterpreter {
 		return interpreters.containsKey(this.id);
 	}
 	
+	public boolean isPermanent() {
+		return permanent;
+	}
+
 	public void cleanAndClose() {
 		interpreters.remove(this.id);
 		this.cleanup();
@@ -62,7 +87,7 @@ public class PyInterpreter extends InteractiveInterpreter {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		PyInterpreter other = (PyInterpreter) obj;
+		JyInterpreter other = (JyInterpreter) obj;
 		if (id != other.id) return false;
 		return true;
 	}

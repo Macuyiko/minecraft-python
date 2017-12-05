@@ -1,24 +1,24 @@
-package com.macuyiko.minecraftpyserver;
+package com.macuyiko.minecraftpyserver.jython;
 
 import java.io.File;
 import org.python.core.PyException;
 
-public class PyInterpreterRunnable implements Runnable{
-	private final PyInterpreter interpreter;
+public class JyInterpreterRunnable implements Runnable {
+	private final JyInterpreter interpreter;
     private final boolean exec;
     private final String code;
     private final File file;
     private final TaskResult result;
     
-    public PyInterpreterRunnable(PyPlugin plugin, PyInterpreter interpreter, String code, boolean exec) {
-        this(plugin, interpreter, code, exec, null);
+    public JyInterpreterRunnable(JyInterpreter interpreter, String code, boolean exec) {
+        this(interpreter, code, exec, null);
     }
     
-    public PyInterpreterRunnable(PyPlugin plugin, PyInterpreter interpreter, File file) {
-        this(plugin, interpreter, null, true, file);
+    public JyInterpreterRunnable(JyInterpreter interpreter, File file) {
+        this(interpreter, null, true, file);
     }
 
-    private PyInterpreterRunnable(PyPlugin plugin, PyInterpreter interpreter, String code, boolean exec, File file) {
+    private JyInterpreterRunnable(JyInterpreter interpreter, String code, boolean exec, File file) {
         this.exec = exec;
         this.interpreter = interpreter;
         this.code = code;

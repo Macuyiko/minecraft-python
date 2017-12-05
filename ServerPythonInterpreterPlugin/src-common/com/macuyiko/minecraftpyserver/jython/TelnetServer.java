@@ -1,4 +1,4 @@
-package com.macuyiko.minecraftpyserver.servers;
+package com.macuyiko.minecraftpyserver.jython;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -6,15 +6,15 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.macuyiko.minecraftpyserver.PyPlugin;
+import com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin;
 
-public class PyTelnetServer implements Runnable {
-	private PyPlugin plugin;
+public class TelnetServer implements Runnable {
+	private MinecraftPyServerPlugin plugin;
 	private int port;
 	private ServerSocket listener;
 	protected ExecutorService threadPool;
 
-	public PyTelnetServer(PyPlugin caller, int port) {
+	public TelnetServer(MinecraftPyServerPlugin caller, int port) {
 		this.plugin = caller;
 		this.port = port;
 		this.threadPool = Executors.newCachedThreadPool();
@@ -26,7 +26,7 @@ public class PyTelnetServer implements Runnable {
 			Socket clientSocket;
 			while (true) {
 				clientSocket = listener.accept();
-				threadPool.execute(new PyTelnetServerThread(clientSocket, this));
+				threadPool.execute(new TelnetServerThread(clientSocket, this));
 			}
 		} catch (IOException ioe) {
 			System.out.println("IOException on socket listen: " + ioe);
@@ -44,7 +44,7 @@ public class PyTelnetServer implements Runnable {
 		return listener;
 	}
 
-	public PyPlugin getPlugin() {
+	public MinecraftPyServerPlugin getPlugin() {
 		return plugin;
 	}
 
