@@ -19,6 +19,7 @@ import com.macuyiko.minecraftpyserver.py4j.PyClassLoaderHack;
 public class MinecraftPyServerUtils {
 	public static void setup() throws IOException {
 		unpack(".", "lib-common/");
+		unpack(".", "lib-http/");
 		unpack(".", "python/");
 		
 		File dependencyDirectory = new File("lib-common/");
@@ -48,11 +49,7 @@ public class MinecraftPyServerUtils {
 			    if (!file.getName().startsWith(prefix)) continue;
 			    File f = new File(destDir + java.io.File.separator + file.getName());
 			    System.err.println("[MinecraftPyServer] Unpacking: " + file.getName());
-			    if (file.isDirectory()) {
-			    	System.err.println("[MinecraftPyServer]           ... creating dir");
-				    f.mkdirs();
-			        continue;
-			    }
+			    f.getParentFile().mkdirs();
 			    try(	InputStream in = new BufferedInputStream(jar.getInputStream(file));
 			    		OutputStream out = new BufferedOutputStream(new FileOutputStream(f))){
 	                byte[] buffer = new byte[2048];

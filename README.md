@@ -125,10 +125,17 @@ Below is a short example of what you can do with the interpreter:
 		explosion(position)
 
 	# A block will explode if the player damages it
-	register_hook(BlockDamageEvent, damage_evt)
+	listener = register_hook(BlockDamageEvent, damage_evt)
 
-	# Remove all event hooks -- currently it's not possible to unregister events one by one
-	unregister_hooks()
+	# Remove event hook
+	unregister_hook(listener)
+
+
+	def cmd_growme(caller, params):
+    loc = lookingat(player("Macuyiko")).getLocation()
+    world.generateTree(loc, TreeType.BIRCH)
+
+register_command('growme', cmd_growme)
 
 ## License
 

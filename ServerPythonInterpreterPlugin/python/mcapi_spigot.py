@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 print ('MCAPI activating')
 
-from org.bukkit import *
+from org.bukkit import Bukkit, Location, Material, Effect, TreeType
 from org.bukkit.command import Command
 from org.bukkit.event import Listener, EventPriority
 from org.bukkit.scheduler import BukkitRunnable
@@ -27,6 +27,7 @@ TIME_MORNING = 2000
 TIME_NOON    = 6000
 TIME_EVENING = 14000
 TIME_NIGHT   = 18000
+
 
 class SpigotRunnable(BukkitRunnable):
     def __init__(self, execfunc):
@@ -107,8 +108,23 @@ def unregister_hooks():
 
 
 def unregister_hook(listener):
-    HandlerListunregisterAll(listener)
+    HandlerList.unregisterAll(listener)
 
+
+class AttrWrapper(object):
+    def __init__(self, wrapped):
+        self._wrapped = wrapped
+    def __getattr__(self, name):
+        f = self._wrapped.__getattribute__(name)
+        @wraps(f)
+        def wrapped_f(*args, **kwargs):
+            g = lambda: f(*args, **kwargs)
+            run_spigot_thread(g, None)
+        return wrapped_f
+        
+world = AttrWrapper(WORLD)
+
+# ---------------------------------------------
 
 def parseargswithpos(args, kwargs, asint=True, ledger={}):
     results = {}
