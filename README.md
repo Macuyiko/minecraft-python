@@ -2,56 +2,48 @@
 
 By: Seppe "Macuyiko" vanden Broucke
 
-`minecraft-python` is a Spigot plugin which provides server administrators with a Python interpreter console which can be used to administer running servers using the full arsenal provided by the Spigot API. It should be relatively easy to port to other Minecraft servers (Canary support was dropped since the project has ceased activity).
+**Note:** This project is currently under heavy updates. The README will be expanded soon.
 
-More background information on how this project came to be can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html).
+`minecraft-python` is a Spigot plugin providing the ability to control Minecraft using Python. Contrary to other approaches, this project aims to expose the whole Bukkit API to Python, instead of only providing a few commands or wrappers by hardcoding these in a Spigot plugin.
 
-You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video showing off some of the possibilities.
+More background information on how this project came to be can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html) (a bit outdated at the moment).
 
-The implementation is based on Jython. This has the benefit that the whole Spigot API can be utilized at runtime, i.e. *without* having to register commands to the Spigot plugin itself (though you can define such commands using the interpreter itself at runtime) and without having to type commands through the Minecraft client's chat window, i.e. this deliberately avoids the approach of [ScriptCraft](http://scriptcraftjs.org/) (another great plugin, but we have a different aim here). This makes the plugin itself very simple and always in line with the Spigot API, but also adds some extra complexity, as you might have to peruse the Spigot Javadocs to find your way through all methods.
+You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video showing off some of the possibilities (also a bit outdated by now but gets the idea across).
 
-Other than allowing cool administration possibilities, the console also provides a fun way to learn Python together with Minecraft. Students can see the results of their code immediately reflected in their Minecraft world. The folks over at [Game Start](http://www.gamestartschool.com/) are currently experimenting with using this. If you'd be interesting in collaborate somehow as well, I'm happy to chat.
+## Implementation
+
+Currently, two Python "engines" are implemented providing Minecraft <-> Python interoperability.
+
+* One is based on Jython. This has the benefit that the complete Python interpreter system runs inside of the JVM, but comes with the drawback that it only supports Python 2
+* A new engine was added recently, based on Py4j. This allows for full Python 3 support
+
+Utilizing the plugin differs somewhat depending on which engine you use:
+
+* With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/jy`, `/jyload` and `/jyrestart`). An HTTP server exposes a web based editor which'll connect to the websocket server. A telnet command can be used to connect to the telnet server. Note that all intepreters run server-side. No local Python installation is required. A built-in Python module, `mcjyapi`, provides some predefined handy commands. Putting `.py` files in a `python-plugins` directory runs these as "plugins" when starting up the plugin. This interpreter keeps running and can be used to set up global hooks. Other interpreters will be cleaned out after some period of inactivity.
+* With the Py4j based system, you'll need to install a Python 3 interpreter manually and use Py4j to connect to the Java gateway server started by the plugin. Chat commands `pyload` and `pyrestart` are available.
+
+A word about these commands `/jy <code>` runs a line of Python code on a Jython intepreter (each player gets their own interpreter). A `.` (dot) prefix can be used in case indentation with whitespace needs to be provided. `jyrestart` restarts the Jython interpreter. `jyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter. `pyrestart` restarts the Py4j gateway. `pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) but simply executes it by calling the OS' `python` executable (not as useful), though stdout and stderr are redirected to the chat window. A running `python` executable will be killed off if it runs too long here.
+
+## Comparison
+
+The explicit goal of this project is to allow programming Minecraft using Python and to provide the full Bukkit API in this environment without resorting to manually wrapping these through a Spigot plugin. Other interesting projects are:
+
+* https://github.com/ammaraskar/pyCraft: modern, Python3-compatible, well-documented library for communication with a MineCraft server. This is on the networking level, however.
+* https://github.com/r1chardj0n3s/pycode-minecraft: similar to command blocks, this plugin allows to code scripts on "Python Blocks". Also uses Jython internally.
+* https://github.com/martinohanlon/mcpi: combines https://github.com/py3minepi/py3minepi and https://github.com/martinohanlon/minecraft-stuff. Exposes only some basic commands by sending them over the wire to Minecraft Pi. 
+* https://github.com/zhuowei/RaspberryJuice: a plugin that implements the Minecraft Pi API, so that `mcpi` above can be used together with a normal Minecraft server. https://github.com/wensheng/JuicyRaspberryPie extends this a little bit, https://www.nostarch.com/programwithminecraft uses `RaspberryJuice` + `mcpi` to write its examples
+* http://scriptcraftjs.org/: similar approach, but uses JavaScript and adds more boilerplate code between the JS engine <-> Java interaction. A bit outdated, sadly
 
 ## Setup
 
-The code is composed out of the following items:
-
-* `ServerPythonInterpreterPlugin`: contains the plugin source code as an Eclipse project. Compatible both with Spigot.
-* `ServerEditorWeb`: contains the source code for a simple Java-based Python editor you can use to connect to the server.
-
-Assuming you already have installed Spigot in `SERVER_DIR`, the plugin is installed as follows:
-
-* Place `ServerPythonInterpreterPlugin/python` in `SERVER_DIR` (i.e. you will get a `SERVER_DIR/python` folder). (This step is optional but will allow you to use some shortcut functions.)
-* Place `ServerPythonInterpreterPlugin/lib-common` in `SERVER_DIR` (i.e. you will get a `SERVER_DIR/lib-common` folder).
-
-Upon starting, the plugin will create a config file where the following parameters can be set:
-
-* `pythonconsole.serverconsole.password [string]`: interpreter server password (default: swordfish) (not meant to be a strong protection)
-* `pythonconsole.serverconsole.telnetport [int]`: port to bind the TCP interpreter server to (default: 44444), set to -1 to disable
-* `pythonconsole.serverconsole.websocketport [int]`: port to bind the WebSocket interpreter server to (default: 44445), set to -1 to disable
-
-## Usage
-
-Logging into the interpreter server can be done using telnet, e.g. `telnet 127.0.0.1 44444` you will be prompted for the password and an interpreter will be spawned after successful authentication:
-
-![](https://camo.githubusercontent.com/6fea3b76ec29006ef0e423dc78d3993bc9489797/687474703a2f2f696d6775722e636f6d2f676f4c684733392e706e67)
-
-You can also initiate a RAW connection using PuTTy (make sure to enable "Implicit CR in every LF"):
-
-![](https://camo.githubusercontent.com/6ddb498f728187442e1fca2add801a978d907e75/687474703a2f2f692e696d6775722e636f6d2f316b553276744c2e706e67)
-
-After logging in, it's a good idea to execute `from mcapi_spigot import *` as your first command. This will load in the `mcapi_spigot.py` file included in the distribution which makes a lot of things easier. If you don't want to use the pre-made functions, you can import any Spigot API class as follows: `from org.bukkit import Bukkit` (see the Spigot API docs or `mcapi_spigot.py` for more examples).
-
-It's generally more pleasant to use web based editor to connect to the websocket server, see `ServerEditorWeb` to do so:
-    
-![](http://i.imgur.com/8ZoH8KG.png)
+As of its latest version, the plugin is installed just like any other Spigot plugin. On boot, `lib-common` and `python` and `lib-http` directories will be created automatically. Config files can be modified to enable/disable servers.
 
 ## Example
 
 Below is a short example of what you can do with the interpreter:
 
 	# Import some modules
-	from mcapi_spigot import *
+	from mcjyapi_spigot import *
 	from time import sleep
 	from random import randint
 
@@ -130,12 +122,11 @@ Below is a short example of what you can do with the interpreter:
 	# Remove event hook
 	unregister_hook(listener)
 
-
 	def cmd_growme(caller, params):
     loc = lookingat(player("Macuyiko")).getLocation()
     world.generateTree(loc, TreeType.BIRCH)
 
-register_command('growme', cmd_growme)
+	register_command('growme', cmd_growme)
 
 ## License
 
