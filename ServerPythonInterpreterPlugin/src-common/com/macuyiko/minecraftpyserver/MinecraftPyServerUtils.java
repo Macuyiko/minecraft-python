@@ -27,7 +27,7 @@ public class MinecraftPyServerUtils {
 	    File[] files = dependencyDirectory.listFiles();
 		for (int i = 0; i < files.length; i++) {
 		    if (files[i].getName().endsWith(".jar")) {
-		    	addURL(new File(dependencyDirectory.getName()+"/"+files[i].getName()).toURI().toURL());
+		    	addURL(new File(dependencyDirectory.getName() + "/" + files[i].getName()).toURI().toURL());
 		    }
 		}
 		
@@ -39,6 +39,8 @@ public class MinecraftPyServerUtils {
 	public static void unpack(String destDir, String prefix) {
 		File df = new File(destDir + java.io.File.separator + prefix);
 		df.mkdirs();
+		for (File c : df.listFiles())
+			if (c.isFile()) c.delete();
 		try(JarFile jar = new JarFile(MinecraftPyServerUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath())){
 			Enumeration<JarEntry> enumEntries = jar.entries();
 			while (enumEntries.hasMoreElements()) {
