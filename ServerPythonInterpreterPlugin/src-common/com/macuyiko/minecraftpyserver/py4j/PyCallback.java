@@ -1,5 +1,9 @@
 package com.macuyiko.minecraftpyserver.py4j;
 
+import org.bukkit.event.Event;
+
 public interface PyCallback {
-	boolean callback();
+	void callback();
+	void callback(String label, String[] parameters);
+	void callback(Event eventtype);
 }

@@ -115,7 +115,7 @@ class AttrWrapper(object):
     def __init__(self, wrapped):
         self._wrapped = wrapped
     def __getattr__(self, name):
-        f = self._wrapped.__getattribute__(name)
+        f = getattr(self._wrapped, name)
         @wraps(f)
         def wrapped_f(*args, **kwargs):
             g = lambda: f(*args, **kwargs)

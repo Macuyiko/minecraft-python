@@ -21,6 +21,8 @@ import py4j.GatewayServer;
 
 public class MinecraftPyServerPlugin extends JavaPlugin {
 
+	public final static String PLUGIN_NAME = "MinecraftPyServer";
+	
 	private static ClientServer py4jServer = null;
 	@SuppressWarnings("unused")
 	private static JyInterpreter pluginInterpreter = null;

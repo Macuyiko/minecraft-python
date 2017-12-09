@@ -12,9 +12,12 @@ public class SpigotRunnable extends BukkitRunnable {
 	        
 	@Override
 	public void run() {
-		boolean result = callback.callback();
-		if (!result)
-			System.err.print("[MinecraftPyServer] Result of a PyCallback was False");
+		try {
+			callback.callback();
+		} catch (Exception e) {
+			System.err.println("---------");
+			e.printStackTrace();
+		}
 	}
 
 }
