@@ -15,6 +15,7 @@ import com.macuyiko.minecraftpyserver.jython.JyInterpreter;
 import com.macuyiko.minecraftpyserver.jython.JyWebSocketServer;
 import com.macuyiko.minecraftpyserver.jython.TelnetServer;
 import com.macuyiko.minecraftpyserver.py4j.PyCommandExecutor;
+import com.macuyiko.minecraftpyserver.rembulan.TelnetServerLua;
 
 import py4j.ClientServer;
 import py4j.GatewayServer;
@@ -54,6 +55,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 				this.getCommand("pyrestart").setExecutor(new PyCommandExecutor(this));
 				this.getCommand("pyload").setExecutor(new PyCommandExecutor(this));
 			}
+			startTelnetServerLua(this, 44455);
 			
 			pluginInterpreter = new JyInterpreter(false, true);
 		} catch (IOException e) {
@@ -73,6 +75,13 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 
 	public static TelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int telnetport) {
 		TelnetServer server = new TelnetServer(mainPlugin, telnetport);
+		Thread t = new Thread(server);
+		t.start();
+		return server;
+	}
+	
+	public static TelnetServerLua startTelnetServerLua(MinecraftPyServerPlugin mainPlugin, int telnetport) {
+		TelnetServerLua server = new TelnetServerLua(mainPlugin, telnetport);
 		Thread t = new Thread(server);
 		t.start();
 		return server;

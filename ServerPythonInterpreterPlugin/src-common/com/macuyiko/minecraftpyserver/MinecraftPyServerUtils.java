@@ -14,8 +14,6 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import com.macuyiko.minecraftpyserver.py4j.PyClassLoaderHack;
-
 public class MinecraftPyServerUtils {
 	public static void setup() throws IOException {
 		unpack(".", "lib-common/");
@@ -32,7 +30,7 @@ public class MinecraftPyServerUtils {
 		    }
 		}
 		
-		PyClassLoaderHack.setPy4JClassLoader();
+		PyClassLoaderHack.setSelfClassLoader();
 	}
 	
 	
