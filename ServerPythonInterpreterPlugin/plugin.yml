@@ -1,19 +1,13 @@
 name: MinecraftPyServer
 main: com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin
-version: 0.5
+version: 0.6
 commands:
-  jy:
+  py:
     description: Execute Python code on Jython interpreter
-    usage: /jy code
-  jyrestart:
-    description: Restart Jython interpreter
-    usage: /jyrestart
-  jyload:
-    description: Execute a server-side Python file on Jython interpreter
-    usage: /jyload file
+    usage: /py code
   pyrestart:
-    description: Restart Py4J gateway
+    description: Restart Jython interpreter
     usage: /pyrestart
   pyload:
-    description: Execute a server-side Python file
+    description: Execute a server-side Python file on Jython interpreter
     usage: /pyload file

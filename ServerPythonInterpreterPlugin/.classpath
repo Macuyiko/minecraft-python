@@ -2,15 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src-common"/>
 	<classpathentry kind="lib" path="lib-common/java_websocket.jar"/>
-	<classpathentry kind="lib" path="lib-common/py4j0.10.6.jar"/>
 	<classpathentry kind="lib" path="lib-spigot/spigot-1.12.2.jar"/>
 	<classpathentry kind="lib" path="lib-common/jython-standalone-2.7.1.jar"/>
-	<classpathentry kind="lib" path="lib-common/rembulan-runtime-0.1-20161025.010158-19.jar"/>
-	<classpathentry kind="lib" path="lib-common/rembulan-compiler-0.1-20161025.010149-19.jar"/>
-	<classpathentry kind="lib" path="lib-common/rembulan-luajava-compat-0.1-20161025.010147-8.jar"/>
-	<classpathentry kind="lib" path="lib-common/rembulan-standalone-0.1-20161025.010145-19.jar"/>
-	<classpathentry kind="lib" path="lib-common/rembulan-stdlib-0.1-20161025.010155-19.jar"/>
-	<classpathentry kind="lib" path="lib-common/asm-6.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

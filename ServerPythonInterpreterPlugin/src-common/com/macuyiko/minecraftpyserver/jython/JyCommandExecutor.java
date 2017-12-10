@@ -22,19 +22,19 @@ public class JyCommandExecutor implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (cmd.getName().equals("jy") && sender instanceof Player && args.length > 0) {
+		if (cmd.getName().equals("py") && sender instanceof Player && args.length > 0) {
 			Player player = (Player) sender;
 			String command = argsToString(args);
 			plugin.send(player.getDisplayName(), ChatColor.AQUA + command);
 			commandServer.command(player.getDisplayName(), command);
 			return true;
-		} else if (cmd.getName().equals("jyrestart") && sender instanceof Player) {
+		} else if (cmd.getName().equals("pyrestart") && sender instanceof Player) {
 			Player player = (Player) sender;
 			plugin.send(player.getDisplayName(), "Restarting Python. Please wait...");
 			commandServer.setupInterpreter(player.getDisplayName());
 			plugin.send(player.getDisplayName(), "Done!\n");
 			return true;
-		} else if (cmd.getName().equals("jyload") && sender instanceof Player && args.length == 1) {
+		} else if (cmd.getName().equals("pyload") && sender instanceof Player && args.length == 1) {
 			Player player = (Player) sender;
 			File match = MinecraftPyServerUtils.matchPythonFile(args[0]);
 			if (match != null) {

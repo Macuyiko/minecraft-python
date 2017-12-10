@@ -80,32 +80,48 @@ public class JyWebSocketServer extends WebSocketServer {
 			plugin.log("Restarting interpreter");
 			setupInterpreter(ws);
 			return;
-		}
+		}	
 		
-		final JyInterpreter interpreter = connections.get(ws);
-		boolean more = false;
-		try {
-			if (message.contains("\n")) {
-				more = JyParser.parse(interpreter, message, true);
-			} else {
-				buffers.put(ws, buffers.get(ws)+"\n"+message); 
-				more = JyParser.parse(interpreter, buffers.get(ws), false);
-			}
-		} catch (PyException e) {
-			ws.send(e.toString()+"\n");
-		}
-		outstreams.get(ws).flush();
-		if (!more) {
-			interpreter.resetbuffer();
-			buffers.put(ws, "");
-		}
-		if (more) ws.send("... ");
-		else ws.send(">>> ");
+		final MyRunnable runnable = new MyRunnable(ws, message);
+		runnable.run();
 	}
 
 	@Override
 	public void onError(WebSocket ws, Exception exc) {
 		close(ws);
+	}
+	
+	public class MyRunnable implements Runnable {
+		private WebSocket ws;
+		private String message;
+
+		public MyRunnable(final WebSocket ws, final String message) {
+			this.ws = ws;
+			this.message = message;
+		}
+		
+		@Override
+		public void run() {
+			final JyInterpreter interpreter = connections.get(ws);
+			boolean more = false;
+			try {
+				if (message.contains("\n")) {
+					more = JyParser.parse(interpreter, message, true);
+				} else {
+					buffers.put(ws, buffers.get(ws)+"\n"+message); 
+					more = JyParser.parse(interpreter, buffers.get(ws), false);
+				}
+			} catch (PyException e) {
+				ws.send(e.toString()+"\n");
+			}
+			if (!more) {
+				interpreter.resetbuffer();
+				buffers.put(ws, "");
+			}
+			if (more) ws.send("... ");
+			else ws.send(">>> ");
+			outstreams.get(ws).flush();
+		}
 	}
 
 	public class MyOutputStream extends OutputStream {

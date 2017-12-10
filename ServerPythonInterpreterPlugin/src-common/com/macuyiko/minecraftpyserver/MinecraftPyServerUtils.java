@@ -29,8 +29,6 @@ public class MinecraftPyServerUtils {
 		    	addURL(new File(dependencyDirectory.getName() + "/" + files[i].getName()).toURI().toURL());
 		    }
 		}
-		
-		PyClassLoaderHack.setSelfClassLoader();
 	}
 	
 	

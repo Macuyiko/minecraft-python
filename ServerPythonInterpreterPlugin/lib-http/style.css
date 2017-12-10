@@ -58,6 +58,8 @@ html, body {
     height: 100%;
     width: 50%;
     float: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .jqconsole {
