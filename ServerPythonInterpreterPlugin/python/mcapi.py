@@ -75,8 +75,9 @@ class AttrWrapper(object):
         @wraps(f)
         def wrapped_f(*args, **kwargs):
             g = lambda: f(*args, **kwargs)
-            run_spigot_thread(g, self.delay)
-        self.delay = None
+            d = self.delay
+            self.delay = None
+            return run_spigot_thread(g, delay=d, wait_for=True)
         return wrapped_f
 
 def run_local_thread(execfunc):
