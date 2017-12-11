@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.python.core.PyException;
 
 import com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin;
@@ -37,23 +38,8 @@ public class JyChatServer {
 			setupInterpreter(player);
 		}
 				
-		final JyInterpreter interpreter = players.get(player);
-		boolean more = false;
-		try {
-			if (message.contains("\n")) {
-				more = JyParser.parse(interpreter, message, true);
-			} else {
-				buffers.put(player, buffers.get(player)+"\n"+message); 
-				more = JyParser.parse(interpreter, buffers.get(player), false);
-			}
-		} catch (PyException e) {
-			answer(player, e.toString()+"\n");
-		}
-		outstreams.get(player).flush();
-		if (!more) {
-			interpreter.resetbuffer();
-			buffers.put(player, "");
-		}
+		final MyRunnable runnable = new MyRunnable(player, message);
+		runnable.run();
 	}
 	
 	public void file(String player, File script) {
@@ -61,15 +47,9 @@ public class JyChatServer {
 			answer(player, "Starting Python... this can take a few seconds\n");
 			setupInterpreter(player);
 		}
-		final JyInterpreter interpreter = players.get(player);
-		interpreter.resetbuffer();
-		try {
-			JyParser.parse(interpreter, script);
-		} catch (PyException e) {
-			answer(player, e.toString()+"\n");
-		}
-		outstreams.get(player).flush();
-		buffers.put(player, "");
+		
+		final MyRunnable runnable = new MyRunnable(player, script);
+		runnable.run();
 	}
 	
 	public void answer(String player, String message) {
@@ -105,6 +85,52 @@ public class JyChatServer {
 		}
 	}
 	
+	public class MyRunnable implements Runnable {
+		private String player;
+		private String message;
+		private File script;
 
+		public MyRunnable(final String player, final String message) {
+			this.player = player;
+			this.message = message;
+		}
+		
+		public MyRunnable(final String player, final File script) {
+			this.player = player;
+			this.script = script;
+		}
+
+		@Override
+		public void run() {
+			final JyInterpreter interpreter = players.get(player);
+			if (script == null) {
+				boolean more = false;
+				try {
+					if (message.contains("\n")) {
+						more = JyParser.parse(interpreter, message, true);
+					} else {
+						buffers.put(player, buffers.get(player)+"\n"+message); 
+						more = JyParser.parse(interpreter, buffers.get(player), false);
+					}
+				} catch (PyException e) {
+					answer(player, e.toString()+"\n");
+				}
+				outstreams.get(player).flush();
+				if (!more) {
+					interpreter.resetbuffer();
+					buffers.put(player, "");
+				}
+			} else {
+				interpreter.resetbuffer();
+				try {
+					JyParser.parse(interpreter, script);
+				} catch (PyException e) {
+					answer(player, e.toString()+"\n");
+				}
+				outstreams.get(player).flush();
+				buffers.put(player, "");
+			}
+		}
+	}
 
 }
