@@ -131,7 +131,7 @@ def add_event_listener(event_type, execfunc, priority=EventPriority.NORMAL):
 def remove_event_listeners():
     HandlerList.unregisterAll(PLUGIN)
 
-def add_event_listener(listener):
+def remove_event_listener(listener):
     HandlerList.unregisterAll(listener)
 
 world = AttrWrapper(WORLD)

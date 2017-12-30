@@ -2,9 +2,9 @@
 
 By: Seppe "Macuyiko" vanden Broucke
 
-**Note:** This project is currently under heavy updates. The README will be expanded soon.
+**Note:** This project is currently under heavy development. The README will be expanded soon.
 
-`minecraft-python` is a Spigot plugin providing the ability to control Minecraft using Python. Contrary to other approaches, this project aims to expose the whole Bukkit API to Python, instead of only providing a few commands or wrappers by hardcoding these in a Spigot plugin.
+`minecraft-python` is a Spigot plugin providing the ability to control Minecraft using Python. Contrary to other approaches, this project aims to expose the whole Bukkit API to Python, instead of only providing a few commands by hardcoding or wrapping these in a Spigot plugin.
 
 More background information on how this project came to be can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html) (a bit outdated at the moment).
 
@@ -12,85 +12,113 @@ You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video sho
 
 ## Implementation
 
-Currently, two Python "engines" are implemented providing Minecraft <-> Python interoperability.
+The implementation is based on Jython. This has the benefit that the complete Python interpreter system runs inside of the JVM, but comes with the drawback that it only supports Python 2.
 
-* One is based on Jython. This has the benefit that the complete Python interpreter system runs inside of the JVM, but comes with the drawback that it only supports Python 2
-* A new engine was added recently, based on Py4j. This allows for full Python 3 support
+With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/py`, `/pyload` and `/pyrestart`). `/py <code>` runs a line of Python code on a Jython intepreter (each player gets their own interpreter). A `.` (dot) at the beginning of the `<code>` line can be used in case indentation with whitespace needs to be provided (the Minecraft server removes whitespace so this is provided as a workaround). `pyrestart` restarts the Jython interpreter. `pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter.
 
-Utilizing the plugin differs somewhat depending on which engine you use:
+Alternatively, an HTTP server (port 8080 by default) exposes a web based editor which will connect to the websocket server. This is perhaps the most pleasant way to access the interpreter for now.
 
-* With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/jy`, `/jyload` and `/jyrestart`). An HTTP server exposes a web based editor which'll connect to the websocket server. A telnet command can be used to connect to the telnet server. Note that all intepreters run server-side. No local Python installation is required. A built-in Python module, `mcjyapi`, provides some predefined handy commands. Putting `.py` files in a `python-plugins` directory runs these as "plugins" when starting up the plugin. This interpreter keeps running and can be used to set up global hooks. Other interpreters will be cleaned out after some period of inactivity.
-* With the Py4j based system, you'll need to install a Python 3 interpreter manually and use Py4j to connect to the Java gateway server started by the plugin. Chat commands `pyload` and `pyrestart` are available.
+Finally, a Telnet client can be used to connect to the telnet server. Note that all interpreters run server-side. No local Python installation is required. A built-in Python module, `mcapi.py`, provides some predefined handy commands. Putting `.py` files in a `python-plugins` directory runs these as "plugins" when starting up the plugin. This interpreter keeps running and can be used to set up global hooks. Other interpreters will be cleaned out after some period of inactivity.
 
-A word about these commands `/jy <code>` runs a line of Python code on a Jython intepreter (each player gets their own interpreter). A `.` (dot) prefix can be used in case indentation with whitespace needs to be provided. `jyrestart` restarts the Jython interpreter. `jyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter. `pyrestart` restarts the Py4j gateway. `pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) but simply executes it by calling the OS' `python` executable (not as useful), though stdout and stderr are redirected to the chat window. A running `python` executable will be killed off if it runs too long here.
+### A Word on Python 3
+
+Jython only supports Python 2 for now, and it seems it'll remain that way for a long while longer. There are various Python 3 <-> JVM interop projects available, though none of which seem to offer the ease-of-use of a full Python on JVM implementation as Jython does.
+
+Py4j comes close, and an earlier commit did provide a way to interact with Minecraft using this library. However, the Py4J implementation relies heavily on callbacks between Python and a JVM, which are sent over the network. Combining this with lots of thread-juggling and Spigot's internal thread model is daunting to say to least. The implementation works, but is very unstable when trying to perform lots of actions on the Spigot server, so I ultimately removed it from the code base for now. See [this commit](https://github.com/Macuyiko/minecraft-python/tree/168656681a2eb8472b9dbd9b00fea276ac4f6f5d) to get an idea where things ended up -- I might add this back in in a separate branch later on.
+
+At one point in time, I also investigated Lua support, but also put this on the backlog for the time being.
 
 ## Comparison
 
 The explicit goal of this project is to allow programming Minecraft using Python and to provide the full Bukkit API in this environment without resorting to manually wrapping these through a Spigot plugin. Other interesting projects are:
 
-* https://github.com/ammaraskar/pyCraft: modern, Python3-compatible, well-documented library for communication with a MineCraft server. This is on the networking level, however.
+* https://github.com/ammaraskar/pyCraft: modern, Python3-compatible, well-documented library for communication with a MineCraft server. This is on the networking level, however, and rather low-level.
 * https://github.com/r1chardj0n3s/pycode-minecraft: similar to command blocks, this plugin allows to code scripts on "Python Blocks". Also uses Jython internally.
-* https://github.com/martinohanlon/mcpi: combines https://github.com/py3minepi/py3minepi and https://github.com/martinohanlon/minecraft-stuff. Exposes only some basic commands by sending them over the wire to Minecraft Pi. 
-* https://github.com/zhuowei/RaspberryJuice: a plugin that implements the Minecraft Pi API, so that `mcpi` above can be used together with a normal Minecraft server. https://github.com/wensheng/JuicyRaspberryPie extends this a little bit, https://www.nostarch.com/programwithminecraft uses `RaspberryJuice` + `mcpi` to write its examples
-* http://scriptcraftjs.org/: similar approach, but uses JavaScript and adds more boilerplate code between the JS engine <-> Java interaction. A bit outdated, sadly
+* http://www.computercraft.info/: an amazing project adding computers and more to Minecraft, provind a coding interface using Lua. This is all in-game, however, comparable to command blocks or `pycode-minecraft`. A fine way to work with computers in Minecraft, though less so to work with Minecraft in computers.
+* https://github.com/martinohanlon/mcpi: combines https://github.com/py3minepi/py3minepi and https://github.com/martinohanlon/minecraft-stuff. Exposes only some basic commands by sending them over the wire to a Minecraft: Pi Edition server. 
+* https://github.com/zhuowei/RaspberryJuice: a plugin that implements the Minecraft Pi Edition API, so that `mcpi` above can be used together with a normal Minecraft server. https://github.com/wensheng/JuicyRaspberryPie extends this a little bit. https://www.nostarch.com/programwithminecraft uses `RaspberryJuice` + `mcpi` to write its examples. A nice approach, with the downside that many "cool" Spigot commands are not available (fireworks, spawning, explosions, ...).
+* http://scriptcraftjs.org/: similar approach, but uses JavaScript and adds more boilerplate code between the JS engine <-> Java interaction. A bit out of date, sadly.
 
 ## Setup
 
-As of its latest version, the plugin is installed just like any other Spigot plugin. On boot, `lib-common` and `python` and `lib-http` directories will be created automatically. Config files can be modified to enable/disable servers.
+As of its latest version, the plugin is installed just like any other Spigot plugin. You'll need Java 8 at least.
+
+On boot, `lib-common` and `python` and `lib-http` directories will be created automatically. Config files can be modified to enable/disable servers.
 
 ## Example
 
 Below is a short example of what you can do with the interpreter:
 
 	# Import some modules
-	from mcjyapi_spigot import *
+	from mcapi import *
 	from time import sleep
 	from random import randint
 
-	# Set the time to morning
-	time(TIME_MORNING)
+	MY_NAME = "Macuyiko"
 
 	# Note: all code runs asynchronously by default. If you want to make world edits, Spigot
-	# forces you to execute these on a synchronised task. Most of the methods included in mcapi_spigot
+	# forces you to execute these on a synchronised task. Most of the methods included in mcapi
 	# will take care of this automatically
-	
-	MY_NAME = "Macuyiko"
-	
-	# Zap the point where I'm looking at "bolt" is provided by mcapi_spigot and will be ran on
-	# a synchronised thread
+
+	# Set the time to sundawn
+	time(0)
+
+	# Zap the point where I'm looking at
 	bolt(lookingat(player(MY_NAME)))
-	
-	def explode_spell(times=10):
-		for i in range(times):
-			yell("Explosion nr. " + str(i))
-			# Explosion is provided by mcapi_spigot and will be ran on a synchronised thread
-			explosion(lookingat(player(MY_NAME)), power=2)
-			sleep(2)
+
+	# A small explosion instead
+	explosion(lookingat(player(MY_NAME)), power=2)
+
+	# Generate a tree (only works if there is room)
+	tree(lookingat(player(MY_NAME)))
+
+	# Spawn some particles
+	particle(lookingat(player(MY_NAME)))
+
+	# Spawn an entity (chicken by default)
+	spawn(lookingat(player(MY_NAME)))
+
+	# Fireworks
+	fireworks(lookingat(player(MY_NAME)))
+
+	# Let's create an exploding chicken spell
+
+	def exploding_chicken(player_name):
+	    yell("Creating an exploding chicken")
+	    chicken = spawn(lookingat(player(player_name)))
+	    for i in range(5,0,-1):
+	        yell("%s second(s) left..." % i)
+	        sleep(1)
+	    explosion(location(chicken), power=2)
+		
+		
 	# Try it!
-	explode_spell()
-	
-	# Now let's define a command, command functions take a special form func(caller, params)
+	exploding_chicken(MY_NAME)
+
+	# Now let's define a command for this spell
+	# Command functions take a special form func(caller, params)
 
 	@asynchronous()
 	def cmd_explode_spell(caller, params):
-		explode_spell()
-	
-	# Commands are executed synchronously by Spigot. This means that all explosions in explode_spell
-	# would use the state of the world as it was at the current server tick when executing the command,
-	# meaning they would all explode in the same location, hence, we use the @asynchronous() decorator
-	# to force this function to be ran asynchronously, only synchronising every time explosion is called
+		exploding_chicken(caller.getName())
 
-	register_command('boomspell', cmd_explode_spell)
-	
-	# Try typing `/boomspell` in Minecraft chat window
+	# Commands are executed synchronously by Spigot
+	# This means that all actions in exploding_chicken would use the state of the 
+	# world as it was at the current server tick when executing the command,
+	# hence, we use the @asynchronous() decorator to force this function to be 
+	# ran asynchronously, only synchronising every time a synchronous command is called
+
+	add_command('chickenspell', cmd_explode_spell)
+
+	# Try typing `/chickenspell` in Minecraft chat window
 	# Commands can be unregistered using
-	unregister_command('boomspell')
+	remove_command('chickenspell')
 
 	# Let's register another command to show of the asynchronous workings
 
 	@asynchronous()
 	def cmd_growme(caller, params):
-	    beginning = lookingat(player(MY_NAME))
+	    beginning = lookingat(player(caller.getName()))
 	    position = [beginning.x, beginning.y, beginning.z]
 	    for i in range(100):
 	        setblock(position) # <- will be synchronised
@@ -98,35 +126,33 @@ Below is a short example of what you can do with the interpreter:
 	        position[1] += +1
 	        sleep(0.05)
 
-	register_command('growme', cmd_growme)
-	
-	# Now let's register an event, these need a func(e) definition
-	
+	add_command('growme', cmd_growme)
+
+	# Now let's register an event
+	# These need a func(event) definition
+
 	from org.bukkit.event.block import BlockDamageEvent
-	
-	# Events execute synchronised, so again we force them to be asynchronous
-	
+
+	# Almost all events execute synchronised, so again we force them to be asynchronous
+
 	@asynchronous()
 	def damage_evt(e):
-		player = e.getPlayer()
-		position = pos(player)
-		yell("I'll count to ten, get out!")
-		for i in range(10):
-    		yell(str(i))
-    		sleep(1.0)
-		explosion(position)
+	    player = e.getPlayer()
+	    position = location(player)
+	    yell("I'll count to ten, get out!")
+	    for i in range(10):
+	        yell(str(i))
+	        sleep(1.0)
+	    explosion(position)
 
 	# A block will explode if the player damages it
-	listener = register_hook(BlockDamageEvent, damage_evt)
+	listener = add_event_listener(BlockDamageEvent, damage_evt)
 
-	# Remove event hook
-	unregister_hook(listener)
+	# Remove specific event hook
+	remove_event_listener(listener)
 
-	def cmd_growme(caller, params):
-    loc = lookingat(player("Macuyiko")).getLocation()
-    world.generateTree(loc, TreeType.BIRCH)
-
-	register_command('growme', cmd_growme)
+	# Or all hooks
+	remove_event_listeners()
 
 ## License
 

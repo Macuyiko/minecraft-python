@@ -118,19 +118,19 @@ public class JyInterpreter extends InteractiveInterpreter {
 		addPathToPySystemState(sys, "./");
 		addPathToPySystemState(sys, "./python/");
 		addPathToPySystemState(sys, "./python-plugins/");
+		File dependencyDirectory = new File("./");
+		File[] files = dependencyDirectory.listFiles();
+		for (int i = 0; i < files.length; i++) {
+		    if (files[i].getName().toLowerCase().contains("spigot") && files[i].getName().toLowerCase().endsWith(".jar")) {
+		    	addPathToPySystemState(sys, files[i].getAbsolutePath());
+		    }
+		}
 		return sys;
 	}
 	
 	public static void addPathToPySystemState(PySystemState sys, String path) {
 		try {
 			sys.path.append(new PyString(path));
-			File dependencyDirectory = new File(path);
-			File[] files = dependencyDirectory.listFiles();
-			for (int i = 0; i < files.length; i++) {
-			    if (files[i].getName().endsWith(".jar")) {
-			    	sys.path.append(new PyString(new File(path+files[i].getName()).getAbsolutePath()));
-			    }
-			}
 		} catch (Exception e){}
 	}
 	

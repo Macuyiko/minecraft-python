@@ -4,10 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
@@ -15,7 +15,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class MinecraftPyServerUtils {
-	public static void setup() throws IOException {
+	
+	public static void setup(ClassLoader classLoader) {
 		unpack(".", "lib-common/");
 		unpack(".", "lib-http/");
 		unpack(".", "python/");
@@ -23,15 +24,18 @@ public class MinecraftPyServerUtils {
 		File dependencyDirectory = new File("lib-common/");
 		if (!dependencyDirectory.exists() || !dependencyDirectory.isDirectory())
 	        return;
+		
 	    File[] files = dependencyDirectory.listFiles();
 		for (int i = 0; i < files.length; i++) {
 		    if (files[i].getName().endsWith(".jar")) {
-		    	addURL(new File(dependencyDirectory.getName() + "/" + files[i].getName()).toURI().toURL());
+		    	try {
+					addURL(classLoader, files[i].toURI().toURL());
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
 		    }
 		}
 	}
-	
-	
 	
 	public static void unpack(String destDir, String prefix) {
 		File df = new File(destDir + java.io.File.separator + prefix);
@@ -64,18 +68,17 @@ public class MinecraftPyServerUtils {
 			e.printStackTrace();
 		}
 	}
-		
-	public static void addURL(URL u) throws IOException {
+	
+	public static void addURL(ClassLoader loader, URL u) {
 		System.err.println("[MinecraftPyServer] Adding: "+u.toString());
-    	URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Class<URLClassLoader> sysclass = URLClassLoader.class;
-        try {
+    	try {
+    		URLClassLoader sysloader = (URLClassLoader) loader;
+            Class<URLClassLoader> sysclass = URLClassLoader.class;
             Method method = sysclass.getDeclaredMethod("addURL", new Class[] {URL.class});
             method.setAccessible(true);
             method.invoke(sysloader, new Object[] {u});
         } catch (Throwable t) {
             t.printStackTrace();
-            throw new IOException("Error, could not add URL to system classloader");
         }
     }
 	

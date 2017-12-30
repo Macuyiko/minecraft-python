@@ -1,7 +1,5 @@
 package com.macuyiko.minecraftpyserver;
 
-import java.io.IOException;
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,31 +20,28 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		log("Loading MinecraftPyServerPlugin");
-		try {
-			MinecraftPyServerUtils.setup();
-			
-			int tcpsocketserverport = getConfig().getInt("pythonconsole.serverconsole.telnetport", 44444);
-			int websocketserverport = getConfig().getInt("pythonconsole.serverconsole.websocketport", 44445);
-			int httpport = getConfig().getInt("pythonconsole.serverconsole.httpeditorport", 8080);
-			boolean enablechatcommands = getConfig().getString("pythonconsole.serverconsole.enablechatcommands", "true").equalsIgnoreCase("true");
-			if (tcpsocketserverport > 0)
-				startTelnetServer(this, tcpsocketserverport);
-			if (websocketserverport > 0)
-				startWebSocketServer(this, websocketserverport);
-			if (httpport > 0)
-				JyHTTPServer.start(httpport, "lib-http");
-			if (enablechatcommands) {
-				JyChatServer commandServer = startChatServer(this);
-				this.getCommand("py").setExecutor(new JyCommandExecutor(this, commandServer));
-				this.getCommand("pyrestart").setExecutor(new JyCommandExecutor(this, commandServer));
-				this.getCommand("pyload").setExecutor(new JyCommandExecutor(this, commandServer));
-			}
-			
-			pluginInterpreter = new JyInterpreter(false, true);
-		} catch (IOException e) {
-			getLogger().severe(e.getMessage());
-			return;
+		
+		MinecraftPyServerUtils.setup(this.getClassLoader());
+		
+		int tcpsocketserverport = getConfig().getInt("pythonconsole.serverconsole.telnetport", 44444);
+		int websocketserverport = getConfig().getInt("pythonconsole.serverconsole.websocketport", 44445);
+		int httpport = getConfig().getInt("pythonconsole.serverconsole.httpeditorport", 8080);
+		boolean enablechatcommands = getConfig().getString("pythonconsole.serverconsole.enablechatcommands", "true").equalsIgnoreCase("true");
+		if (tcpsocketserverport > 0)
+			startTelnetServer(this, tcpsocketserverport);
+		if (websocketserverport > 0)
+			startWebSocketServer(this, websocketserverport);
+		if (httpport > 0)
+			JyHTTPServer.start(httpport, "lib-http");
+		if (enablechatcommands) {
+			JyChatServer commandServer = startChatServer(this);
+			this.getCommand("py").setExecutor(new JyCommandExecutor(this, commandServer));
+			this.getCommand("pyrestart").setExecutor(new JyCommandExecutor(this, commandServer));
+			this.getCommand("pyload").setExecutor(new JyCommandExecutor(this, commandServer));
 		}
+		
+		pluginInterpreter = new JyInterpreter(false, true);
+	
 	}
 	
 	public void log(String message) {
