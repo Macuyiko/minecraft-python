@@ -33,6 +33,9 @@ public class JyInterpreter extends InteractiveInterpreter {
 		this.lastCall = System.currentTimeMillis();
 		this.permanent = permanent;
 		this.runplugins = runplugins;
+		this.setOut(System.err);
+		this.setErr(System.err);
+		
 		
 		if (this.runplugins) {
 			try {
@@ -40,6 +43,7 @@ public class JyInterpreter extends InteractiveInterpreter {
 				File[] files = dependencyDirectory.listFiles();
 				for (int i = 0; i < files.length; i++) {
 				    if (files[i].getName().endsWith(".py")) {
+				    	System.err.println("[MinecraftPyServer] Parsing plugin: "+files[i].getName());
 				    	this.parse(files[i]);
 				    	permanent = true;
 				    }

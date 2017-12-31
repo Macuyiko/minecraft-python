@@ -40,7 +40,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			this.getCommand("pyload").setExecutor(new JyCommandExecutor(this, commandServer));
 		}
 		
-		pluginInterpreter = new JyInterpreter(false, true);
+		pluginInterpreter = new JyInterpreter(true, true);
 	
 	}
 	
