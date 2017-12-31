@@ -16,7 +16,9 @@ from threading import Thread
 
 from random import *
 from time import sleep
+
 import sys
+import traceback
 
 
 SERVER = Bukkit.getServer()
@@ -48,22 +50,14 @@ class SpigotCommand(Command):
         Command.__init__(self, name)
         self.execfunc = execfunc
     def execute(self, caller, label, parameters):
-        try:
-            self.execfunc(caller, parameters)
-        except Exception as e:
-            print('\n*** An error occurred while running a command:\n' + str(e))
-            sys.stdout.flush()
-
+        self.execfunc(caller, parameters)
+        
 class EventListener(Listener):
     def __init__(self, func):
         self.func = func
     def execute(self, event):
-        try:
-            self.func(event)
-        except Exception as e:
-            print('\n*** An error occurred while running an event listener:\n' + str(e))
-            sys.stdout.flush()
-
+        self.func(event)
+        
 class AttrWrapper(object):
     def __init__(self, wrapped):
         self._wrapped = wrapped
@@ -81,7 +75,14 @@ class AttrWrapper(object):
         return wrapped_f
 
 def run_local_thread(execfunc):
-    Thread(target=execfunc).start()
+    def wrap_exception(g):
+        try:
+            g()
+        except Exception as e:
+            traceback.print_exc(file=sys.stderr)
+            sys.stderr.flush()
+    Thread(target=lambda: wrap_exception(execfunc)).start()
+    sys.stderr.flush()
 
 def run_spigot_thread(execfunc, delay=None, wait_for=False):
     spigot_runnable = SpigotRunnable(execfunc)

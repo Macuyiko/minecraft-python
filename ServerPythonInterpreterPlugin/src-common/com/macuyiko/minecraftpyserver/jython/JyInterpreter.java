@@ -102,7 +102,7 @@ public class JyInterpreter extends InteractiveInterpreter {
 			if (exec) this.exec(code);
 			else return this.runsource(code);
 		} catch (PyException e) {
-			throw e;
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -112,7 +112,7 @@ public class JyInterpreter extends InteractiveInterpreter {
 		try {
 			this.execfile(script.getAbsolutePath());
 		} catch (PyException e) {
-			throw e;
+			e.printStackTrace();
 		}
 		return false;
 	}

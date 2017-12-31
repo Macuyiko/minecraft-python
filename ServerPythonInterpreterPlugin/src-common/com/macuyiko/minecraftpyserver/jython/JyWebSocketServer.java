@@ -20,6 +20,7 @@ public class JyWebSocketServer extends WebSocketServer {
 	private Map<WebSocket, JyInterpreter> connections;
 	private Map<WebSocket, MyOutputStream> outstreams;
 	private Map<WebSocket, String> buffers;
+	private boolean isClosing = false;
 	
 	public JyWebSocketServer(MinecraftPyServerPlugin caller, int port) {
 		super(new InetSocketAddress(port));
@@ -27,6 +28,7 @@ public class JyWebSocketServer extends WebSocketServer {
 		this.connections = new HashMap<WebSocket, JyInterpreter>();
 		this.outstreams = new HashMap<WebSocket, MyOutputStream>();
 		this.buffers = new HashMap<WebSocket, String>();
+		this.isClosing = false;
 	}
 	
 	public void cleanup() {
@@ -50,6 +52,9 @@ public class JyWebSocketServer extends WebSocketServer {
 	}
 	
 	public void close(WebSocket ws) {
+		if (isClosing)
+			return;
+		this.isClosing = true;
 		if (connections.containsKey(ws))
 			connections.get(ws).cleanAndClose();
 		connections.remove(ws);
