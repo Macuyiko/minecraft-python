@@ -1,6 +1,6 @@
 name: MinecraftPyServer
 main: com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin
-version: 0.7
+version: 0.8
 commands:
   py:
     description: Execute Python code on Jython interpreter
@@ -11,3 +11,7 @@ commands:
   pyload:
     description: Execute a server-side Python file on Jython interpreter
     usage: /pyload file
+permissions:
+  chatcommands:
+    default: op
+    description: Players who can use chat commands

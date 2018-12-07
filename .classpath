@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="ServerPythonInterpreterPlugin/src-common"/>
+	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-common/java_websocket.jar"/>
+	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-common/jython-standalone-2.7.1.jar"/>
+	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-spigot/spigot-1.13.2.jar"/>
+	<classpathentry kind="output" path="ServerPythonInterpreterPlugin/bin"/>
+</classpath>

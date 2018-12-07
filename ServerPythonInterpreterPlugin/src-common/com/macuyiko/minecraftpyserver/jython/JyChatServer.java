@@ -23,6 +23,9 @@ public class JyChatServer {
 	}
 		
 	public void setupInterpreter(String player) {
+		if (players.containsKey(player)) {
+			players.get(player).cleanAndClose();
+		}
 		JyInterpreter interpreter = new JyInterpreter();
 		MyOutputStream os = new MyOutputStream(this, player);
 		interpreter.setOut(os);

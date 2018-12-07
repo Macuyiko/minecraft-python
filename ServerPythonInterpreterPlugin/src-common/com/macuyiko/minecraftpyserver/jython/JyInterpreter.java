@@ -36,7 +36,6 @@ public class JyInterpreter extends InteractiveInterpreter {
 		this.setOut(System.err);
 		this.setErr(System.err);
 		
-		
 		if (this.runplugins) {
 			try {
 				File dependencyDirectory = new File("./python-plugins/");

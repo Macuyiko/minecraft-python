@@ -41,15 +41,30 @@ public class MinecraftPyServerUtils {
 		File df = new File(destDir + java.io.File.separator + prefix);
 		df.mkdirs();
 		for (File c : df.listFiles())
-			if (c.isFile()) c.delete();
+			deleteRecursive(c);
+		
 		try(JarFile jar = new JarFile(MinecraftPyServerUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath())){
 			Enumeration<JarEntry> enumEntries = jar.entries();
 			while (enumEntries.hasMoreElements()) {
 			    JarEntry file = enumEntries.nextElement();
 			    if (!file.getName().startsWith(prefix)) continue;
+			    if (!file.isDirectory()) continue;
+			    File f = new File(destDir + java.io.File.separator + file.getName());
+			    f.mkdirs();
+			}
+			jar.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try(JarFile jar = new JarFile(MinecraftPyServerUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath())){
+			Enumeration<JarEntry> enumEntries = jar.entries();
+			while (enumEntries.hasMoreElements()) {
+			    JarEntry file = enumEntries.nextElement();
+			    if (!file.getName().startsWith(prefix)) continue;
+			    if (file.isDirectory()) continue;
 			    File f = new File(destDir + java.io.File.separator + file.getName());
 			    System.err.println("[MinecraftPyServer] Unpacking: " + file.getName());
-			    f.getParentFile().mkdirs();
 			    try(	InputStream in = new BufferedInputStream(jar.getInputStream(file));
 			    		OutputStream out = new BufferedOutputStream(new FileOutputStream(f))){
 	                byte[] buffer = new byte[2048];
@@ -67,6 +82,14 @@ public class MinecraftPyServerUtils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void deleteRecursive(File f) {
+		if (f.isDirectory()) {
+			for (File c : f.listFiles())
+				deleteRecursive(c);
+		}
+		f.delete();
 	}
 	
 	public static void addURL(ClassLoader loader, URL u) {
