@@ -1,15 +1,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 print ('MCAPI activating')
 
-from org.bukkit import Bukkit, Location
-from org.bukkit import Effect, Material, Sound, TreeType, Particle, FireworkEffect
+from org.bukkit import Bukkit
+from org.bukkit import Location, Color, Effect, Material, Sound, TreeType, Particle, FireworkEffect
 from org.bukkit.entity import EntityType
 from org.bukkit.command import Command
-from org.bukkit.event import Listener, EventPriority
+from org.bukkit.event import Listener, EventPriority, HandlerList
 from org.bukkit.scheduler import BukkitRunnable
-from org.bukkit.event import HandlerList
 from org.bukkit.FireworkEffect import Type as FireworkEffectType
-from org.bukkit import Color
 
 from functools import wraps
 from threading import Thread
