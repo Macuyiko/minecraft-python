@@ -122,6 +122,8 @@ public class JyChatServer {
 				if (!more) {
 					interpreter.resetbuffer();
 					buffers.put(player, "");
+				} else {
+					answer(player, "(...)\n");
 				}
 			} else {
 				interpreter.resetbuffer();
