@@ -7,6 +7,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 
 import com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin;
 import com.macuyiko.minecraftpyserver.MinecraftPyServerUtils;
@@ -22,20 +24,27 @@ public class JyCommandExecutor implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		if (!(sender instanceof Player))
+			return false;
+		Player player = (Player) sender;
+		Permission p = new Permission("chatcommands", PermissionDefault.FALSE);
+		if (!player.hasPermission(p)) {
+			plugin.send(player.getDisplayName(), 
+					ChatColor.RED + "You don't have permission to use this command");
+			return false;
+		}
+		
 		if (cmd.getName().equals("py") && sender instanceof Player && args.length > 0) {
-			Player player = (Player) sender;
 			String command = argsToString(args);
 			plugin.send(player.getDisplayName(), ChatColor.AQUA + command);
 			commandServer.command(player.getDisplayName(), command);
 			return true;
 		} else if (cmd.getName().equals("pyrestart") && sender instanceof Player) {
-			Player player = (Player) sender;
 			plugin.send(player.getDisplayName(), "Restarting Python. Please wait...");
 			commandServer.setupInterpreter(player.getDisplayName());
 			plugin.send(player.getDisplayName(), "Done!\n");
 			return true;
 		} else if (cmd.getName().equals("pyload") && sender instanceof Player && args.length == 1) {
-			Player player = (Player) sender;
 			File match = MinecraftPyServerUtils.matchPythonFile(args[0]);
 			if (match != null) {
 				plugin.send(player.getDisplayName(), "Executing file: " + match.getName());

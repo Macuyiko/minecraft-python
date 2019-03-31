@@ -26,8 +26,6 @@ PLUGIN = SERVER.getPluginManager().getPlugin('MinecraftPyServer')
 _commandMapField = SERVER.getClass().getDeclaredField("commandMap")
 _commandMapField.setAccessible(True)
 _commandMap = _commandMapField.get(SERVER)
-_knownCommandsField = _commandMap.getClass().getDeclaredField("knownCommands")
-_knownCommandsField.setAccessible(True)
 
 class SpigotRunnable(BukkitRunnable):
     def __init__(self, execfunc):
@@ -113,10 +111,11 @@ def synchronous(delay=None, wait_for=False):
 def add_command(name, execfunc):
     # execfunc signature: execfunc(caller, params)
     _commandMap.register("jycraft", SpigotCommand(name, execfunc))
+    return name
 
 def remove_command(name):
     _commandMap.getCommand(name).unregister(_commandMap)
-    _knownCommandsField.get(_commandMap).remove(name);
+    _commandMap.getKnownCommands().remove(name)
     
 def execute_event_listener(listener, event):
     listener.execute(event)
@@ -322,10 +321,7 @@ def fireworks(*args, **kwargs):
     if not r['builder']:
         fwe = FireworkEffect.builder().withTrail().withColor(Color.BLUE, Color.RED).build()
     fw = WORLD.spawnEntity(location(r['x'], r['y'], r['z']), EntityType.FIREWORK)
-    fwm = fw.getFireworkMeta();
-    fwm.addEffect(fwe);
-    fwm.setPower(r['power']);
+    fwm = fw.getFireworkMeta()
+    fwm.addEffect(fwe)
+    fwm.setPower(r['power'])
     fw.setFireworkMeta(fwm)
-
-
-

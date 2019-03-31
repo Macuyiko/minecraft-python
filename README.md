@@ -1,9 +1,5 @@
 # Minecraft Server Python Interpreter
 
-By: Seppe "Macuyiko" vanden Broucke
-
-**Note:** This project is currently under heavy development. The README will be expanded soon.
-
 `minecraft-python` is a Spigot plugin providing the ability to control Minecraft using Python. Contrary to other approaches, this project aims to expose the whole Bukkit API to Python, instead of only providing a few commands by hardcoding or wrapping these in a Spigot plugin.
 
 More background information on how this project came to be can be found on [this blog post](http://blog.macuyiko.com/post/2015/rebuilding-our-jython-console-plugin-for-minecraft.html) (a bit outdated at the moment).
@@ -14,7 +10,7 @@ You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video sho
 
 The implementation is based on Jython. This has the benefit that the complete Python interpreter system runs inside of the JVM, but comes with the drawback that it only supports Python 2.
 
-With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/py`, `/pyload` and `/pyrestart`). `/py <code>` runs a line of Python code on a Jython intepreter (each player gets their own interpreter). A `.` (dot) at the beginning of the `<code>` line can be used in case indentation with whitespace needs to be provided (the Minecraft server removes whitespace so this is provided as a workaround). `pyrestart` restarts the Jython interpreter. `pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter.
+With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/py`, `/pyload` and `/pyrestart`). `/py <code>` runs a line of Python code on a Jython intepreter (each player gets their own interpreter). A `.` (dot) at the beginning of the `<code>` line can be used in case indentation with whitespace needs to be provided (the Minecraft server removes whitespace so this is provided as a workaround). `/pyrestart` restarts the Jython interpreter. `/pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter.
 
 Alternatively, an HTTP server (port 8080 by default) exposes a web based editor which will connect to the websocket server. This is perhaps the most pleasant way to access the interpreter for now.
 
@@ -24,13 +20,13 @@ Finally, a Telnet client can be used to connect to the telnet server. Note that 
 
 Jython only supports Python 2 for now, and it seems it'll remain that way for a long while longer. There are various Python 3 <-> JVM interop projects available, though none of which seem to offer the ease-of-use of a full Python on JVM implementation as Jython does.
 
-Py4j comes close, and an earlier commit did provide a way to interact with Minecraft using this library. However, the Py4J implementation relies heavily on callbacks between Python and a JVM, which are sent over the network. Combining this with lots of thread-juggling and Spigot's internal thread model is daunting to say to least. The implementation works, but is very unstable when trying to perform lots of actions on the Spigot server, so I ultimately removed it from the code base for now. See [this commit](https://github.com/Macuyiko/minecraft-python/tree/168656681a2eb8472b9dbd9b00fea276ac4f6f5d) to get an idea where things ended up -- I might add this back in in a separate branch later on.
+[Py4j](https://www.py4j.org/) comes close, and an earlier commit did provide a way to interact with Minecraft using this library. However, the Py4J implementation relies heavily on callbacks between Python and a JVM, which are sent over the network. Combining this with lots of thread-juggling and Spigot's internal thread model is daunting to say the least. The implementation works, but is very unstable when trying to perform lots of actions on the Spigot server, so I ultimately removed it from the code base for now. See [this commit](https://github.com/Macuyiko/minecraft-python/tree/168656681a2eb8472b9dbd9b00fea276ac4f6f5d) to get an idea where things ended up -- I might add this back in in a separate branch later on.
 
 At one point in time, I also investigated Lua support, but also put this on the backlog for the time being.
 
 ## Comparison
 
-The explicit goal of this project is to allow programming Minecraft using Python and to provide the full Bukkit API in this environment without resorting to manually wrapping these through a Spigot plugin. Other interesting projects are:
+The explicit goal of this project is to allow programming Minecraft using Python and to provide the full Bukkit API in this environment without resorting to manually wrapping these through a Spigot plugin. Other interesting projects in this space are:
 
 * https://github.com/ammaraskar/pyCraft: modern, Python3-compatible, well-documented library for communication with a MineCraft server. This is on the networking level, however, and rather low-level.
 * https://github.com/r1chardj0n3s/pycode-minecraft: similar to command blocks, this plugin allows to code scripts on "Python Blocks". Also uses Jython internally.
@@ -41,7 +37,7 @@ The explicit goal of this project is to allow programming Minecraft using Python
 
 ## Setup
 
-As of its latest version, the plugin is installed just like any other Spigot plugin. You'll need Java 8 at least.
+As of its latest version, the plugin is installed just like any other Spigot plugin. **You'll need Java 8 at least.**
 
 On boot, `lib-common` and `python` and `lib-http` directories will be created automatically. Config files can be modified to enable/disable servers.
 
