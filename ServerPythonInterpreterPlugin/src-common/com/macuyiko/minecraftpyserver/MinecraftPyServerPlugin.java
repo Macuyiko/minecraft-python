@@ -1,11 +1,15 @@
 package com.macuyiko.minecraftpyserver;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import com.macuyiko.minecraftpyserver.jython.JyChatServer;
 import com.macuyiko.minecraftpyserver.jython.JyCommandExecutor;
-import com.macuyiko.minecraftpyserver.jython.JyHTTPServer;
 import com.macuyiko.minecraftpyserver.jython.JyInterpreter;
 import com.macuyiko.minecraftpyserver.jython.JyWebSocketServer;
 import com.macuyiko.minecraftpyserver.jython.TelnetServer;
@@ -14,8 +18,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 
 	public final static String PLUGIN_NAME = "MinecraftPyServer";
 	
-	@SuppressWarnings("unused")
-	private static JyInterpreter pluginInterpreter = null;
+	private List<JyInterpreter> pluginInterpreters = new ArrayList<JyInterpreter>();
 	
 	@Override
 	public void onEnable() {
@@ -23,16 +26,16 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		
 		MinecraftPyServerUtils.setup(this.getClassLoader());
 		
-		int tcpsocketserverport = getConfig().getInt("pythonconsole.serverconsole.telnetport", 44444);
-		int websocketserverport = getConfig().getInt("pythonconsole.serverconsole.websocketport", 44445);
-		int httpport = getConfig().getInt("pythonconsole.serverconsole.httpeditorport", 8080);
-		boolean enablechatcommands = getConfig().getString("pythonconsole.serverconsole.enablechatcommands", "true").equalsIgnoreCase("true");
+		int tcpsocketserverport = getConfig().getInt("pythonconsole.telnetport", 44444);
+		int websocketserverport = getConfig().getInt("pythonconsole.websocketport", 44445);
+		boolean enablechatcommands = getConfig().getString("pythonconsole.enablechatcommands", "true").equalsIgnoreCase("true");
+		
 		if (tcpsocketserverport > 0)
 			startTelnetServer(this, tcpsocketserverport);
+		
 		if (websocketserverport > 0)
 			startWebSocketServer(this, websocketserverport);
-		if (httpport > 0)
-			JyHTTPServer.start(httpport, "lib-http");
+		
 		if (enablechatcommands) {
 			JyChatServer commandServer = startChatServer(this);
 			this.getCommand("py").setExecutor(new JyCommandExecutor(this, commandServer));
@@ -40,8 +43,26 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			this.getCommand("pyload").setExecutor(new JyCommandExecutor(this, commandServer));
 		}
 		
-		pluginInterpreter = new JyInterpreter(true, true);
+		File pluginDirectory = new File("./python-plugins/");
+		if (pluginDirectory.exists() && pluginDirectory.isDirectory()) {
+			File[] files = pluginDirectory.listFiles();
+			for (int i = 0; i < files.length; i++) {
+			    if (files[i].getName().endsWith(".py")) {
+			    	System.err.println("[MinecraftPyServer] Parsing plugin: " + files[i].getName());
+			    	JyInterpreter pluginInterpreter = new JyInterpreter(true);
+			    	pluginInterpreter.execfile(files[i]);
+			    	pluginInterpreters.add(pluginInterpreter);
+				}
+			}
+		}
+	}
 	
+	public void onDisable() {
+		log("Unloading MinecraftPyServerPlugin");
+		
+		for (JyInterpreter pluginInterpreter : pluginInterpreters) {
+			pluginInterpreter.close();
+		}
 	}
 	
 	public void log(String message) {

@@ -1,4 +1,7 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
+# from __future__ import absolute_import, division, print_function, unicode_literals
+# Doesn't work with Jython, with not much hope of improving
+# See https://bugs.jython.org/issue2007
+
 print ('MCAPI activating')
 
 from org.bukkit import Bukkit

@@ -6,65 +6,61 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
-import org.python.core.PyException;
 
 public class TelnetServerThread implements Runnable {
 	protected Socket socket;
 	protected TelnetServer server;
 	protected JyInterpreter interpreter;
-	protected String line;
-	protected String buffer;
-	protected PrintStream out;
 	protected BufferedReader in;
+	protected PrintStream out;
 
 	public TelnetServerThread(Socket socket, TelnetServer socketServer) {
 		this.socket = socket;
 		this.server = socketServer;
-		this.buffer = "";
-		this.interpreter = new JyInterpreter();
 		try {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			this.out = new PrintStream(this.socket.getOutputStream());
 		} catch (Exception e) {
+			System.err.println("[MinecraftPyServer] Exception on telnet socket whilst setting up in/out");
 			e.printStackTrace();
 		}
-		this.interpreter.setOut(this.out);
-		this.interpreter.setErr(this.out);
-		socketServer.getPlugin().log("New telnet connection");
+		setupInterpreter();
+		if (socketServer.getPlugin() != null)
+			socketServer.getPlugin().log("New telnet connection");
 	}
 
+	public void setupInterpreter() {
+		if (interpreter != null) {
+			interpreter.close();
+		}
+		interpreter = new JyInterpreter();
+		this.interpreter.setOut(this.out);
+		this.interpreter.setErr(this.out);
+	}
+	
 	public void run() {
 		try {
 			out.println("Welcome! Don't forget to type '!exit' when you want to logout");
-
 			out.print(">>> ");
+			String line = null;
+			interpreter.resetbuffer();
 			while ((line = in.readLine()) != null) {
-				if (!interpreter.isAlive()) {
-					out.print("\nInterpreter timeout");
-					break;
-				}
 				if (line.equals("!exit")) {
 					break;
 				}
 				if (line.equals("!restart")) {
-					this.interpreter = new JyInterpreter();
+					setupInterpreter();
+					out.println();
+					out.print(">>> ");
+					continue;
+				}
+				if (!interpreter.isAlive()) {
+					out.println("\nInterpreter timeout. Spawn a new one with '!restart'");
+					continue;
 				}
 				boolean more = false;
-				try {
-					if (line.contains("\n")) {
-						// As we are using readLine(), this branch will never
-						// occur; the telnet interface is thus a pure REPL
-						more = JyParser.parse(interpreter, line, true);
-					} else {
-						buffer += "\n" + line;
-						more = JyParser.parse(interpreter, buffer, false);
-					}
-				} catch (PyException e) {
-					out.print(e.toString() + "\n");
-				}
+				more = interpreter.push(line);
 				if (!more) {
-					buffer = "";
-					interpreter.resetbuffer();
 					out.print(">>> ");
 				} else {
 					out.print("... ");
@@ -72,8 +68,7 @@ public class TelnetServerThread implements Runnable {
 			}
 			socket.close();
 		} catch (IOException ioe) {
-			System.out.println("IOException on socket listen: " + ioe);
-			ioe.printStackTrace();
+			System.err.println("[MinecraftPyServer] IOException on telnet socket");
 		} finally {
 			try {
 				this.out.close();

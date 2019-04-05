@@ -14,6 +14,10 @@ public class TelnetServer implements Runnable {
 	private ServerSocket listener;
 	protected ExecutorService threadPool;
 
+	public static void main(String[] args) {
+		MinecraftPyServerPlugin.startTelnetServer(null, 44444);
+	}
+	
 	public TelnetServer(MinecraftPyServerPlugin caller, int port) {
 		this.plugin = caller;
 		this.port = port;
@@ -37,7 +41,6 @@ public class TelnetServer implements Runnable {
 			} catch (IOException e) {
 			}
 		}
-
 	}
 
 	public ServerSocket getListener() {

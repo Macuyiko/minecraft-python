@@ -29,8 +29,7 @@ public class JyCommandExecutor implements CommandExecutor {
 		Player player = (Player) sender;
 		Permission p = new Permission("chatcommands", PermissionDefault.FALSE);
 		if (!player.hasPermission(p)) {
-			plugin.send(player.getDisplayName(), 
-					ChatColor.RED + "You don't have permission to use this command");
+			plugin.send(player.getDisplayName(), ChatColor.RED + "You don't have permission to use this command");
 			return false;
 		}
 		

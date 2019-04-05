@@ -5,54 +5,77 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.python.core.PyException;
-
 import com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin;
 
 public class JyChatServer {
 	private MinecraftPyServerPlugin plugin;
-	private Map<String, JyInterpreter> players;
+	private Map<String, JyInterpreter> interpreters;
+	private Map<String, Boolean> waiting;
 	private Map<String, MyOutputStream> outstreams;
-	private Map<String, String> buffers;
 	
 	public JyChatServer(MinecraftPyServerPlugin caller) {
 		this.plugin = caller;
-		this.players = new HashMap<String, JyInterpreter>();
+		this.interpreters = new HashMap<String, JyInterpreter>();
 		this.outstreams = new HashMap<String, MyOutputStream>();
-		this.buffers = new HashMap<String, String>();
+		this.waiting = new HashMap<String, Boolean>();
 	}
 		
 	public void setupInterpreter(String player) {
-		if (players.containsKey(player)) {
-			players.get(player).cleanAndClose();
+		if (interpreters.containsKey(player)) {
+			interpreters.get(player).close();
 		}
+		waiting.put(player, false);
 		JyInterpreter interpreter = new JyInterpreter();
 		MyOutputStream os = new MyOutputStream(this, player);
 		interpreter.setOut(os);
 		interpreter.setErr(os);
 		outstreams.put(player, os);
-		players.put(player, interpreter);
-		buffers.put(player, "");
+		interpreters.put(player, interpreter);
 	}
 
 	public void command(String player, String message) {
-		if (!players.containsKey(player)) {
-			answer(player, "Starting Python... this can take a few seconds\n");
-			setupInterpreter(player);
-		}
-				
-		final MyRunnable runnable = new MyRunnable(player, message);
-		runnable.run();
-	}
-	
-	public void file(String player, File script) {
-		if (!players.containsKey(player)) {
+		if (!interpreters.containsKey(player) || !interpreters.get(player).isAlive()) {
 			answer(player, "Starting Python... this can take a few seconds\n");
 			setupInterpreter(player);
 		}
 		
-		final MyRunnable runnable = new MyRunnable(player, script);
-		runnable.run();
+		if (waiting.get(player)) {
+			answer(player, "(Still busy with your last command)\n");
+			return;
+		}
+		
+		Thread threaded = new Thread() {
+			public void run() {
+				waiting.put(player, true);
+				boolean more = interpreters.get(player).push(message);
+				waiting.put(player, false);
+				if (more) {
+					answer(player, "(More input is expected)\n");
+				}
+			}
+		};
+		threaded.start();
+	}
+	
+	public void file(String player, File script) {
+		if (!interpreters.containsKey(player) || !interpreters.get(player).isAlive()) {
+			answer(player, "Starting Python... this can take a few seconds\n");
+			setupInterpreter(player);
+		}
+		
+		if (waiting.get(player)) {
+			answer(player, "(Still busy with your last command)\n");
+			return;
+		}
+		
+		Thread threaded = new Thread() {
+			public void run() {
+				waiting.put(player, true);
+				interpreters.get(player).execfile(script);
+				waiting.put(player, false);
+			}
+		};
+		threaded.start();
 	}
 	
 	public void answer(String player, String message) {
@@ -63,15 +86,18 @@ public class JyChatServer {
 		String player;
 		StringBuffer buffer = new StringBuffer("");
 		JyChatServer server;
+
 		public MyOutputStream(JyChatServer server, String player) {
 			this.player = player;
 			this.server = server;
 		}
+
 		@Override
 		public void write(int b) {
 			byte[] bytes = { (byte) b };
 			write(bytes, 0, bytes.length);
 		}
+
 		@Override
 		public void write(byte[] bytes, int offset, int length) {
 			String s = new String(bytes, offset, length);
@@ -79,62 +105,13 @@ public class JyChatServer {
 			if (buffer.toString().endsWith("\n"))
 				this.flush();
 		}
+
 		@Override
 		public void flush() {
 			String sb = buffer.toString();
 			if (!sb.equals(""))
 				server.answer(player, buffer.toString());
 			buffer.delete(0, buffer.length());
-		}
-	}
-	
-	public class MyRunnable implements Runnable {
-		private String player;
-		private String message;
-		private File script;
-
-		public MyRunnable(final String player, final String message) {
-			this.player = player;
-			this.message = message;
-		}
-		
-		public MyRunnable(final String player, final File script) {
-			this.player = player;
-			this.script = script;
-		}
-
-		@Override
-		public void run() {
-			final JyInterpreter interpreter = players.get(player);
-			if (script == null) {
-				boolean more = false;
-				try {
-					if (message.contains("\n")) {
-						more = JyParser.parse(interpreter, message, true);
-					} else {
-						buffers.put(player, buffers.get(player)+"\n"+message); 
-						more = JyParser.parse(interpreter, buffers.get(player), false);
-					}
-				} catch (PyException e) {
-					answer(player, e.toString()+"\n");
-				}
-				outstreams.get(player).flush();
-				if (!more) {
-					interpreter.resetbuffer();
-					buffers.put(player, "");
-				} else {
-					answer(player, "(...)\n");
-				}
-			} else {
-				interpreter.resetbuffer();
-				try {
-					JyParser.parse(interpreter, script);
-				} catch (PyException e) {
-					answer(player, e.toString()+"\n");
-				}
-				outstreams.get(player).flush();
-				buffers.put(player, "");
-			}
 		}
 	}
 
