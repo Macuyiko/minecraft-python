@@ -12,9 +12,11 @@ The implementation is based on Jython. This has the benefit that the complete Py
 
 With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/py`, `/pyload` and `/pyrestart`). `/py <code>` runs a line of Python code on a Jython intepreter (each player gets their own interpreter). A `.` (dot) at the beginning of the `<code>` line can be used in case indentation with whitespace needs to be provided (the Minecraft server removes whitespace so this is provided as a workaround). `/pyrestart` restarts the Jython interpreter. `/pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter.
 
-Alternatively, an HTTP server (port 8080 by default) exposes a web based editor which will connect to the websocket server. This is perhaps the most pleasant way to access the interpreter for now.
+Alternatively, `remote-client.py` can be used to set up a Python REPL that will send commands to the remote Jython interpreter over a websocket connection.
 
-Finally, a Telnet client can be used to connect to the telnet server. Note that all interpreters run server-side. No local Python installation is required. A built-in Python module, `mcapi.py`, provides some predefined handy commands. Putting `.py` files in a `python-plugins` directory runs these as "plugins" when starting up the plugin. This interpreter keeps running and can be used to set up global hooks. Other interpreters will be cleaned out after some period of inactivity.
+Finally, a Telnet client can be used to connect to a telnet-based interface to the remote interpreter.
+
+A built-in Python module, `mcapi.py`, provides some predefined handy commands which can be imported in the remote interpreter. Putting `.py` files in a `python-plugins` directory runs these as "plugins" when starting up the plugin. This interpreter keeps running and can be used to set up global hooks. Other interpreters will be cleaned out after some period of inactivity.
 
 ### A Word on Python 3
 
@@ -39,7 +41,7 @@ The explicit goal of this project is to allow programming Minecraft using Python
 
 As of its latest version, the plugin is installed just like any other Spigot plugin. **You'll need Java 8 at least.**
 
-On boot, `lib-common` and `python` and `lib-http` directories will be created automatically. Config files can be modified to enable/disable servers.
+On boot, `lib-common` and `python` directories will be created automatically. If you want to access other Minecraft plugins in your Python scripts, their JAR files can be copied over to a `lib-custom` directory.
 
 ## Example
 
