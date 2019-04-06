@@ -83,7 +83,7 @@ def run_local_thread(execfunc):
     Thread(target=lambda: wrap_exception(execfunc)).start()
     sys.stderr.flush()
 
-def run_spigot_thread(execfunc, delay=None, wait_for=False):
+def run_spigot_thread(execfunc, delay, wait_for):
     spigot_runnable = SpigotRunnable(execfunc)
     if delay is None: spigot_runnable.runTask(PLUGIN)
     else: spigot_runnable.runTaskLater(PLUGIN, delay)
@@ -91,7 +91,7 @@ def run_spigot_thread(execfunc, delay=None, wait_for=False):
         while not spigot_runnable.done:
             sleep(0.1)
         return spigot_runnable.returnval
-    return
+    return spigot_runnable
 
 def asynchronous():
     def actual_decorator(f):
@@ -102,7 +102,7 @@ def asynchronous():
         return wrapped_f
     return actual_decorator
 
-def synchronous(delay=None, wait_for=False):
+def synchronous(delay=None, wait_for=True):
     def actual_decorator(f):
         @wraps(f)
         def wrapped_f(*args, **kwargs):
@@ -141,7 +141,7 @@ world = AttrWrapper(WORLD)
 # Built-in helper functions
 # -------------------------
 
-def parseargswithpos(args, kwargs, asint=True, ledger={}):
+def parseargswithpos(args, kwargs=None, asint=True, ledger={}):
     results = {}
     if kwargs is None: kwargs = {}
     if isinstance(args[0], int) or isinstance(args[0], float):

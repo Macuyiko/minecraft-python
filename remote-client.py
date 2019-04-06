@@ -12,6 +12,7 @@ class InteractiveRemoteConsole(InteractiveConsole):
             uri = 'ws://localhost:44445/'
         InteractiveConsole.__init__(self, None, "<remoteconsole>")
         self.websocket = websocket.create_connection(uri)
+        self.websocket.settimeout(5)
 
     def interact(self, banner=None, exitmsg=None):
         if banner is None:
@@ -72,5 +73,10 @@ if __name__ == '__main__':
                 line = line.rstrip()
                 console.push(line)
                 console.recv(supress_prompt=True)
+            # Add final new lines
+            console.push("")
+            console.recv(supress_prompt=True)
+            console.push("")
+            console.recv(supress_prompt=True)
     else:
         interact()
