@@ -1,6 +1,6 @@
 name: MinecraftPyServer
 main: com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin
-version: 0.9
+version: 0.10
 commands:
   py:
     description: Execute Python code on Jython interpreter

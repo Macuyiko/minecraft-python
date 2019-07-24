@@ -30,7 +30,7 @@ public class TelnetServer implements Runnable {
 			Socket clientSocket;
 			while (true) {
 				clientSocket = listener.accept();
-				threadPool.execute(new TelnetServerThread(clientSocket, this));
+				threadPool.execute(new TelnetServerThread(this, clientSocket));
 			}
 		} catch (IOException ioe) {
 			System.out.println("IOException on socket listen: " + ioe);

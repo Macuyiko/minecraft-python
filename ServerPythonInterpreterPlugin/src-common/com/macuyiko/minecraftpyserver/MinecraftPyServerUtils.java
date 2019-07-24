@@ -18,7 +18,6 @@ public class MinecraftPyServerUtils {
 
 	public static void setup(ClassLoader classLoader) {
 		unpack(".", "lib-common/");
-		unpack(".", "lib-http/");
 		unpack(".", "python/");
 
 		addURLs(classLoader, new File("lib-common/"));
@@ -43,7 +42,9 @@ public class MinecraftPyServerUtils {
 				File f = new File(destDir + java.io.File.separator + file.getName());
 				System.err.println("[MinecraftPyServer] Unpacking: " + file.getName());
 				f.getParentFile().mkdirs();
-				try (InputStream in = new BufferedInputStream(jar.getInputStream(file));
+				if (f.isDirectory())
+					continue;
+				try (	InputStream in = new BufferedInputStream(jar.getInputStream(file));
 						OutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
 					byte[] buffer = new byte[2048];
 					while (true) {

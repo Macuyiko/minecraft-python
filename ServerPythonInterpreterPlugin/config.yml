@@ -2,3 +2,4 @@ pythonconsole:
  telnetport: 44444
  websocketport: 44445
  enablechatcommands: true
+ disconnecttimeout: 900

@@ -22,20 +22,30 @@ public class JyInterpreter extends InteractiveInterpreter {
 	private final int id;
 	private long lastCall;
 	private boolean permanent;
+	private int timeout;
 	private List<String> buffer = new ArrayList<String>();
 	
-	private static final int IDLE_TIMEOUT = 60 * 15;
+	private static final int DEFAULT_IDLE_TIMEOUT = 60 * 15;
 	
 	public JyInterpreter() {
-		this(false);
+		this(false, DEFAULT_IDLE_TIMEOUT);
 	}
 	
 	public JyInterpreter(boolean permanent) {
+		this(permanent, DEFAULT_IDLE_TIMEOUT);
+	}
+	
+	public JyInterpreter(int timeout) {
+		this(false, timeout);
+	}
+	
+	public JyInterpreter(boolean permanent, int timeout) {
 		super(null, getPythonSystemState());
 		this.id = sequence.incrementAndGet();
 		interpreters.put(this.id, this);
 		this.lastCall = System.currentTimeMillis();
 		this.permanent = permanent;
+		this.timeout = timeout;
 		
 		this.setOut(System.out);
 		this.setErr(System.err);
@@ -45,7 +55,9 @@ public class JyInterpreter extends InteractiveInterpreter {
 		Iterator<JyInterpreter> it = interpreters.values().iterator();
 		while (it.hasNext()) {
 			JyInterpreter interpreter = it.next();
-			if (!interpreter.isPermanent() && interpreter.getSecondsPassedSinceLastCall() >= IDLE_TIMEOUT) {
+			if (!interpreter.isPermanent() && 
+					interpreter.getTimeout() > 0 && 
+					interpreter.getSecondsPassedSinceLastCall() >= interpreter.getTimeout()) {
 				interpreter.close();
 			}
 		}
@@ -71,8 +83,12 @@ public class JyInterpreter extends InteractiveInterpreter {
 		super.close();
 	}
 	
-	public double getSecondsPassedSinceLastCall() {
-		return (System.currentTimeMillis() - this.lastCall) / 1000D;
+	public int getSecondsPassedSinceLastCall() {
+		return (int) ((System.currentTimeMillis() - this.lastCall) / 1000D);
+	}
+	
+	public int getTimeout() {
+		return timeout;
 	}
 	
 	@Override

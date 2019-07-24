@@ -8,15 +8,15 @@ import java.net.Socket;
 
 
 public class TelnetServerThread implements Runnable {
-	protected Socket socket;
-	protected TelnetServer server;
-	protected JyInterpreter interpreter;
-	protected BufferedReader in;
-	protected PrintStream out;
+	private TelnetServer server;
+	private Socket socket;
+	private JyInterpreter interpreter;
+	private BufferedReader in;
+	private PrintStream out;
 
-	public TelnetServerThread(Socket socket, TelnetServer socketServer) {
-		this.socket = socket;
+	public TelnetServerThread(TelnetServer socketServer, Socket socket) {
 		this.server = socketServer;
+		this.socket = socket;
 		try {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			this.out = new PrintStream(this.socket.getOutputStream());
@@ -33,7 +33,8 @@ public class TelnetServerThread implements Runnable {
 		if (interpreter != null) {
 			interpreter.close();
 		}
-		interpreter = new JyInterpreter();
+		int interpretertimeout = server.getPlugin().getConfig().getInt("pythonconsole.disconnecttimeout", 900);
+		interpreter = new JyInterpreter(interpretertimeout);
 		this.interpreter.setOut(this.out);
 		this.interpreter.setErr(this.out);
 	}
