@@ -1,0 +1,1 @@
+"C:\Program Files\7-Zip\7z.exe" a -tzip python.jar  .\ServerPythonInterpreterPlugin\*.yml .\ServerPythonInterpreterPlugin\bin\* .\ServerPythonInterpreterPlugin\lib-common\ .\ServerPythonInterpreterPlugin\python\
