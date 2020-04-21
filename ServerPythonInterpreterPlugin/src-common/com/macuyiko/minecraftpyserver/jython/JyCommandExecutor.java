@@ -29,28 +29,28 @@ public class JyCommandExecutor implements CommandExecutor {
 		Player player = (Player) sender;
 		Permission p = new Permission("chatcommands", PermissionDefault.FALSE);
 		if (!player.hasPermission(p)) {
-			plugin.send(player.getDisplayName(), ChatColor.RED + "You don't have permission to use this command");
+			plugin.send(player, ChatColor.RED + "You don't have permission to use this command");
 			return false;
 		}
 		
 		if (cmd.getName().equals("py") && sender instanceof Player && args.length > 0) {
 			String command = argsToString(args);
-			plugin.send(player.getDisplayName(), ChatColor.AQUA + command);
-			commandServer.command(player.getDisplayName(), command);
+			plugin.send(player, ChatColor.AQUA + command);
+			commandServer.command(player, command);
 			return true;
 		} else if (cmd.getName().equals("pyrestart") && sender instanceof Player) {
-			plugin.send(player.getDisplayName(), "Restarting Python. Please wait...");
-			commandServer.setupInterpreter(player.getDisplayName());
-			plugin.send(player.getDisplayName(), "Done!\n");
+			plugin.send(player, "Restarting Python. Please wait...");
+			commandServer.setupInterpreter(player);
+			plugin.send(player, "Done!\n");
 			return true;
 		} else if (cmd.getName().equals("pyload") && sender instanceof Player && args.length == 1) {
 			File match = MinecraftPyServerUtils.matchPythonFile(args[0]);
 			if (match != null) {
-				plugin.send(player.getDisplayName(), "Executing file: " + match.getName());
-				commandServer.file(player.getDisplayName(), match);
+				plugin.send(player, "Executing file: " + match.getName());
+				commandServer.file(player, match);
 				return true;
 			} else {
-				plugin.send(player.getDisplayName(), "Sorry, couldn't find this Python file");
+				plugin.send(player, "Sorry, couldn't find this Python file");
 			}
 		}
 		return false;

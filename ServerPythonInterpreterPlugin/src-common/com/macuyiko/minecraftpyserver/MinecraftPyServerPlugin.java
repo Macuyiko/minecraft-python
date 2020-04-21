@@ -69,9 +69,13 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		getLogger().info(message);
 	}
 
+	public void send(Player player, String message) {
+		player.sendMessage(ChatColor.GREEN + message.replace("\r", ""));
+	}
+	
 	public void send(String player, String message) {
 		Player p = getServer().getPlayer(player);
-		p.sendMessage(ChatColor.GREEN + message.replace("\r", ""));
+		send(p, message);
 	}
 
 	public static TelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int telnetport) {

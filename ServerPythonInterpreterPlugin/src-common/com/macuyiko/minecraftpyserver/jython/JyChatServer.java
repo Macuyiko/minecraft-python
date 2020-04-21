@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.entity.Player;
+
 import com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin;
 
 public class JyChatServer {
@@ -20,6 +22,10 @@ public class JyChatServer {
 		this.waiting = new HashMap<String, Boolean>();
 	}
 		
+	public void setupInterpreter(Player player) {
+		setupInterpreter(player.getName());
+	}
+
 	public void setupInterpreter(String player) {
 		if (interpreters.containsKey(player)) {
 			interpreters.get(player).close();
@@ -32,6 +38,10 @@ public class JyChatServer {
 		interpreter.setErr(os);
 		outstreams.put(player, os);
 		interpreters.put(player, interpreter);
+	}
+
+	public void command(Player player, String command) {
+		command(player.getName(), command);	
 	}
 
 	public void command(String player, String message) {
@@ -57,6 +67,10 @@ public class JyChatServer {
 		};
 		threaded.start();
 	}
+
+	public void file(Player player, File script) {
+		file(player.getName(), script);
+	}
 	
 	public void file(String player, File script) {
 		if (!interpreters.containsKey(player) || !interpreters.get(player).isAlive()) {
@@ -77,6 +91,10 @@ public class JyChatServer {
 			}
 		};
 		threaded.start();
+	}
+	
+	public void answer(Player player, String message) {
+		plugin.send(player, message);
 	}
 	
 	public void answer(String player, String message) {

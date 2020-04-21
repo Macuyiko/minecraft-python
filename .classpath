@@ -3,8 +3,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="ServerPythonInterpreterPlugin/src-common"/>
 	<classpathentry kind="src" path="ServerPythonInterpreterPlugin/src-test"/>
-	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-common/jython-standalone-2.7.1.jar"/>
 	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-common/java-websocket-1.4.0.jar"/>
-	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-spigot/spigot-1.14.4.jar"/>
+	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-common/jython-standalone-2.7.2.jar"/>
+	<classpathentry kind="lib" path="ServerPythonInterpreterPlugin/lib-spigot/spigot-1.15.2.jar"/>
 	<classpathentry kind="output" path="ServerPythonInterpreterPlugin/bin"/>
 </classpath>
