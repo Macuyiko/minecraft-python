@@ -1,11 +1,20 @@
+# /bin/python
+# -*- coding: utf-8 -*-
 # from __future__ import absolute_import, division, print_function, unicode_literals
 # Doesn't work with Jython, with not much hope of improving
 # See https://bugs.jython.org/issue2007
 
 print ('MCAPI activating')
 
+# Set default encoding to utf-8
+if os.name == 'java':
+    from org.python.core import codecs
+    codecs.setDefaultEncoding('utf-8')
+
 from org.bukkit import Bukkit
 from org.bukkit import Location, Color, Effect, Material, Sound, TreeType, Particle, FireworkEffect
+
+from org.bukkit.plugin import EventExecutor
 from org.bukkit.entity import EntityType
 from org.bukkit.command import Command
 from org.bukkit.event import Listener, EventPriority, HandlerList
@@ -30,6 +39,7 @@ _commandMapField = SERVER.getClass().getDeclaredField("commandMap")
 _commandMapField.setAccessible(True)
 _commandMap = _commandMapField.get(SERVER)
 
+
 class SpigotRunnable(BukkitRunnable):
     def __init__(self, execfunc):
         super(BukkitRunnable, self).__init__()
@@ -50,13 +60,18 @@ class SpigotCommand(Command):
         self.execfunc = execfunc
     def execute(self, caller, label, parameters):
         self.execfunc(caller, parameters)
-        
+
 class EventListener(Listener):
     def __init__(self, func):
         self.func = func
     def execute(self, event):
         self.func(event)
-        
+
+# EventExecutor implementation
+class Executor(EventExecutor):
+    def execute(self, listener, event):
+        listener.execute(event)
+
 class AttrWrapper(object):
     def __init__(self, wrapped):
         self._wrapped = wrapped
@@ -119,14 +134,12 @@ def add_command(name, execfunc):
 def remove_command(name):
     _commandMap.getCommand(name).unregister(_commandMap)
     _commandMap.getKnownCommands().remove(name)
-    
-def execute_event_listener(listener, event):
-    listener.execute(event)
 
 def add_event_listener(event_type, execfunc, priority=EventPriority.NORMAL):
     # execfunc signature: execfunc(event)
     listener = EventListener(execfunc)
-    SERVER.getPluginManager().registerEvent(event_type, listener, priority, execute_event_listener, PLUGIN)
+    executor = Executor()
+    SERVER.getPluginManager().registerEvent(event_type, listener, priority, executor, PLUGIN)
     return listener
 
 def remove_event_listeners():
