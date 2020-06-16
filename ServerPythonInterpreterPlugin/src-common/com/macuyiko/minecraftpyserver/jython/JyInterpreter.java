@@ -124,7 +124,17 @@ public class JyInterpreter extends InteractiveInterpreter {
 
 	public void execfile(File script) {
 		lastCall = System.currentTimeMillis();
-		super.execfile(script.getAbsolutePath());
+		try {
+			super.execfile(script.getAbsolutePath());
+		} catch (PyException exc) {
+            if (exc.match(Py.SystemExit)) {
+                // Suppress this: we don't want clients to stop the whole JVM!
+            	// We do stop this interpreter, however
+            	this.close();
+            	return;
+            }
+            showexception(exc);
+        }
 	}
 	
 	public void runcode(PyObject code) {

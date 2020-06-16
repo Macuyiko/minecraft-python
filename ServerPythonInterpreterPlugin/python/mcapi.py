@@ -7,6 +7,7 @@
 print ('MCAPI activating')
 
 # Set default encoding to utf-8
+import os
 if os.name == 'java':
     from org.python.core import codecs
     codecs.setDefaultEncoding('utf-8')
