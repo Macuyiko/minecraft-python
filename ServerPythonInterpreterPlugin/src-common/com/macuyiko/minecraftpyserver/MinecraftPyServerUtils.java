@@ -154,7 +154,8 @@ public class MinecraftPyServerUtils {
 	}
 
 	public static File matchPythonFile(String arg) {
-		String homePath = javax.swing.filechooser.FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
+		String homePath = javax.swing.filechooser.FileSystemView.getFileSystemView()
+				.getHomeDirectory().getAbsolutePath();
 		File asIs = new File(arg);
 		File onDesktop = new File(homePath, arg);
 		File asIsPy = new File(arg + ".py");

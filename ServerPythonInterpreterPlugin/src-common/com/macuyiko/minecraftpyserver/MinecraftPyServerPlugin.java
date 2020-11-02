@@ -1,6 +1,7 @@
 package com.macuyiko.minecraftpyserver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,13 +13,17 @@ import com.macuyiko.minecraftpyserver.jython.JyChatServer;
 import com.macuyiko.minecraftpyserver.jython.JyCommandExecutor;
 import com.macuyiko.minecraftpyserver.jython.JyInterpreter;
 import com.macuyiko.minecraftpyserver.jython.JyWebSocketServer;
-import com.macuyiko.minecraftpyserver.jython.TelnetServer;
+import com.macuyiko.minecraftpyserver.jython.JyTelnetServer;
 
 public class MinecraftPyServerPlugin extends JavaPlugin {
 
 	public final static String PLUGIN_NAME = "MinecraftPyServer";
 	
 	private List<JyInterpreter> pluginInterpreters = new ArrayList<JyInterpreter>();
+	private JyWebSocketServer webSocketServer;
+	private JyTelnetServer telnetServer;
+	private JyChatServer commandServer;
+	private Thread telnetServerThread;
 	
 	@Override
 	public void onEnable() {
@@ -28,41 +33,43 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		
 		int tcpsocketserverport = getConfig().getInt("pythonconsole.telnetport", 44444);
 		int websocketserverport = getConfig().getInt("pythonconsole.websocketport", 44445);
-		boolean enablechatcommands = getConfig().getString("pythonconsole.enablechatcommands", "true").equalsIgnoreCase("true");
+		boolean enablechatcommands = getConfig().getString("pythonconsole.enablechatcommands", "true")
+				.equalsIgnoreCase("true");
 		
 		if (tcpsocketserverport > 0)
-			startTelnetServer(this, tcpsocketserverport);
+			telnetServer = startTelnetServer(this, tcpsocketserverport);
 		
 		if (websocketserverport > 0)
-			startWebSocketServer(this, websocketserverport);
+			webSocketServer = startWebSocketServer(this, websocketserverport);
 		
 		if (enablechatcommands) {
-			JyChatServer commandServer = startChatServer(this);
+			commandServer = startChatServer(this);
 			this.getCommand("py").setExecutor(new JyCommandExecutor(this, commandServer));
 			this.getCommand("pyrestart").setExecutor(new JyCommandExecutor(this, commandServer));
 			this.getCommand("pyload").setExecutor(new JyCommandExecutor(this, commandServer));
+			this.getCommand("pyreload").setExecutor(new JyCommandExecutor(this, commandServer));
 		}
 		
-		File pluginDirectory = new File("./python-plugins/");
-		if (pluginDirectory.exists() && pluginDirectory.isDirectory()) {
-			File[] files = pluginDirectory.listFiles();
-			for (int i = 0; i < files.length; i++) {
-			    if (files[i].getName().endsWith(".py")) {
-			    	System.err.println("[MinecraftPyServer] Parsing plugin: " + files[i].getName());
-			    	JyInterpreter pluginInterpreter = new JyInterpreter(true);
-			    	pluginInterpreter.execfile(files[i]);
-			    	pluginInterpreters.add(pluginInterpreter);
-				}
-			}
-		}
+		startPluginInterpreters();
 	}
 	
 	public void onDisable() {
 		log("Unloading MinecraftPyServerPlugin");
 		
-		for (JyInterpreter pluginInterpreter : pluginInterpreters) {
-			pluginInterpreter.close();
+		stopPluginInterpreters();
+		
+		try {
+			webSocketServer.stop();
+		} catch (IOException e) {
+		} catch (InterruptedException e) {
 		}
+		
+		telnetServerThread.interrupt();
+		try {
+			telnetServerThread.join(1000);
+		} catch (InterruptedException e) {
+		}
+		telnetServer.close();
 	}
 	
 	public void log(String message) {
@@ -78,25 +85,48 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		send(p, message);
 	}
 
-	public static TelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int telnetport) {
-		TelnetServer server = new TelnetServer(mainPlugin, telnetport);
-		Thread t = new Thread(server);
-		t.start();
+	public void restartPluginInterpreters() {
+		stopPluginInterpreters();
+		startPluginInterpreters();
+	}
+
+	private void startPluginInterpreters() {
+		File pluginDirectory = new File("./python-plugins/");
+		if (pluginDirectory.exists() && pluginDirectory.isDirectory()) {
+			File[] files = pluginDirectory.listFiles();
+			for (int i = 0; i < files.length; i++) {
+			    if (files[i].getName().endsWith(".py")) {
+			    	System.err.println("[MinecraftPyServer] Parsing plugin: " + files[i].getName());
+			    	JyInterpreter pluginInterpreter = new JyInterpreter(true);
+			    	pluginInterpreter.execfile(files[i]);
+			    	pluginInterpreters.add(pluginInterpreter);
+				}
+			}
+		}
+	}
+
+	private void stopPluginInterpreters() {
+		for (JyInterpreter pluginInterpreter : pluginInterpreters) {
+			pluginInterpreter.close();
+		}
+	}
+
+	public JyTelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int telnetport) {
+		JyTelnetServer server = new JyTelnetServer(mainPlugin, telnetport);
+		telnetServerThread = new Thread(server);
+		telnetServerThread.start();
 		return server;
 	}
 	
-	public static JyWebSocketServer startWebSocketServer(MinecraftPyServerPlugin mainPlugin, int websocketport) {
+	public JyWebSocketServer startWebSocketServer(MinecraftPyServerPlugin mainPlugin, int websocketport) {
 		JyWebSocketServer server = new JyWebSocketServer(mainPlugin, websocketport);
 		server.start();
 		return server;
 	}
 	
-	public static JyChatServer startChatServer(MinecraftPyServerPlugin mainPlugin) {
+	public JyChatServer startChatServer(MinecraftPyServerPlugin mainPlugin) {
 		JyChatServer server = new JyChatServer(mainPlugin);
 		return server;
 	}
-
-	
-	
 	
 }

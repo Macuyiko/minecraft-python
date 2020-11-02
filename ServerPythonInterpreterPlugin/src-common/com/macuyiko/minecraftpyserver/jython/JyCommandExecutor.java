@@ -43,6 +43,11 @@ public class JyCommandExecutor implements CommandExecutor {
 			commandServer.setupInterpreter(player);
 			plugin.send(player, "Done!\n");
 			return true;
+		} else if (cmd.getName().equals("pyreload") && sender instanceof Player) {
+			plugin.send(player, "Restarting Python scripts. Please wait...");
+			plugin.restartPluginInterpreters();
+			plugin.send(player, "Done!\n");
+			return true;
 		} else if (cmd.getName().equals("pyload") && sender instanceof Player && args.length == 1) {
 			File match = MinecraftPyServerUtils.matchPythonFile(args[0]);
 			if (match != null) {

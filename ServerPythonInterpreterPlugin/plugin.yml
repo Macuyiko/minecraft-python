@@ -13,6 +13,9 @@ commands:
   pyload:
     description: Execute a server-side Python file on Jython interpreter
     usage: /pyload file
+  pyreload:
+    description: Reload all Jython scripts
+    usage: /pyreload
 permissions:
   chatcommands:
     default: op
