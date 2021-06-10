@@ -22,6 +22,8 @@ from org.bukkit.event import Listener, EventPriority, HandlerList
 from org.bukkit.scheduler import BukkitRunnable
 from org.bukkit.FireworkEffect import Type as FireworkEffectType
 
+from java.util.function import Supplier
+
 from functools import wraps
 from threading import Thread
 
@@ -41,9 +43,15 @@ _commandMapField.setAccessible(True)
 _commandMap = _commandMapField.get(SERVER)
 
 
+class SpigotOnDisable(Supplier):
+    def __init__(self, func):
+    	self.func = func
+    def get(self):
+        self.func()
+
 class SpigotRunnable(BukkitRunnable):
     def __init__(self, execfunc):
-        super(BukkitRunnable, self).__init__()
+        BukkitRunnable.__init__(self)
         self.execfunc = execfunc
         self.returnval = None
         self.done = False
@@ -68,7 +76,6 @@ class EventListener(Listener):
     def execute(self, event):
         self.func(event)
 
-# EventExecutor implementation
 class Executor(EventExecutor):
     def execute(self, listener, event):
         listener.execute(event)
@@ -127,6 +134,15 @@ def synchronous(delay=None, wait_for=True):
         return wrapped_f
     return actual_decorator
 
+def add_ondisable(name, execfunc):
+    # execfunc signature: execfunc()
+    _commandMap.register("jycraft", SpigotCommand(name, execfunc))
+    return name
+
+def remove_ondisable(name):
+    _commandMap.getCommand(name).unregister(_commandMap)
+    _commandMap.getKnownCommands().remove(name)
+
 def add_command(name, execfunc):
     # execfunc signature: execfunc(caller, params)
     _commandMap.register("jycraft", SpigotCommand(name, execfunc))
@@ -149,11 +165,15 @@ def remove_event_listeners():
 def remove_event_listener(listener):
     HandlerList.unregisterAll(listener)
 
-world = AttrWrapper(WORLD)
+def add_ondisable_handler(name, func):
+    handler = SpigotOnDisable(func)
+    PLUGIN.registerOnDisableHandler(name, func)
+    return name
 
-# -------------------------
-# Built-in helper functions
-# -------------------------
+def remove_ondisable_handler(name):
+    PLUGIN.unregisterOnDisableHandler(name, func)
+
+world = AttrWrapper(WORLD)
 
 def parseargswithpos(args, kwargs=None, asint=True, ledger={}):
     results = {}
@@ -207,6 +227,9 @@ def lookingat(entity=None, distance=100):
 
 def yell(message):
     SERVER.broadcastMessage(message)
+    
+def broadcast(message):
+	return yell(message)
 
 @synchronous()
 def time(time=None):
