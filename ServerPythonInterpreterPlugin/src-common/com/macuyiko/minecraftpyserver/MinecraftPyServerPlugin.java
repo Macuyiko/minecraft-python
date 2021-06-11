@@ -133,20 +133,20 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		}
 	}
 
-	public JyTelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int telnetport) {
+	private JyTelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int telnetport) {
 		JyTelnetServer server = new JyTelnetServer(mainPlugin, telnetport);
 		telnetServerThread = new Thread(server);
 		telnetServerThread.start();
 		return server;
 	}
 
-	public JyWebSocketServer startWebSocketServer(MinecraftPyServerPlugin mainPlugin, int websocketport) {
+	private JyWebSocketServer startWebSocketServer(MinecraftPyServerPlugin mainPlugin, int websocketport) {
 		JyWebSocketServer server = new JyWebSocketServer(mainPlugin, websocketport);
 		server.start();
 		return server;
 	}
 
-	public JyChatServer startChatServer(MinecraftPyServerPlugin mainPlugin) {
+	private JyChatServer startChatServer(MinecraftPyServerPlugin mainPlugin) {
 		JyChatServer server = new JyChatServer(mainPlugin);
 		return server;
 	}
