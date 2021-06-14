@@ -29,8 +29,7 @@ public class JyTelnetServer implements Runnable {
 				threadPool.execute(new JyTelnetServerThread(this, clientSocket));
 			}
 		} catch (IOException ioe) {
-			System.out.println("IOException on socket listen: " + ioe);
-			ioe.printStackTrace();
+			plugin.log("IOException on socket listen: " + ioe);
 		} finally {
 			close();
 		}

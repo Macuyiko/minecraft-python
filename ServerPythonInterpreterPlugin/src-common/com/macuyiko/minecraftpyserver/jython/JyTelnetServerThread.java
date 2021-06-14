@@ -21,7 +21,7 @@ public class JyTelnetServerThread implements Runnable {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			this.out = new PrintStream(this.socket.getOutputStream());
 		} catch (Exception e) {
-			System.err.println("[MinecraftPyServer] Exception on telnet socket whilst setting up in/out");
+			this.server.getPlugin().log("Exception on telnet socket whilst setting up in/out");
 			e.printStackTrace();
 		}
 		setupInterpreter();
@@ -69,7 +69,7 @@ public class JyTelnetServerThread implements Runnable {
 			}
 			socket.close();
 		} catch (IOException ioe) {
-			System.err.println("[MinecraftPyServer] IOException on telnet socket");
+			this.server.getPlugin().log("IOException on telnet socket");
 		} finally {
 			try {
 				this.out.close();

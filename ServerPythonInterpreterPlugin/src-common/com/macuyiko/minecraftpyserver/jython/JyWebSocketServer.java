@@ -96,7 +96,7 @@ public class JyWebSocketServer extends WebSocketServer {
 
 	@Override
 	public void onError(WebSocket ws, Exception exc) {
-		System.err.println("[MinecraftPyServer] onError on websocket");
+		plugin.log("onError on websocket");
 		exc.printStackTrace();
 	}
 	

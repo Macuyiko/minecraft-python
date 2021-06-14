@@ -118,7 +118,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			File[] files = pluginDirectory.listFiles();
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].getName().endsWith(".py")) {
-					System.err.println("[MinecraftPyServer] Parsing plugin: " + files[i].getName());
+					log("Parsing plugin: " + files[i].getName());
 					JyInterpreter pluginInterpreter = new JyInterpreter(true);
 					pluginInterpreter.execfile(files[i]);
 					pluginInterpreters.add(pluginInterpreter);
