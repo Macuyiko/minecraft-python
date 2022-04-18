@@ -10,11 +10,11 @@ You can watch a [Youtube](https://www.youtube.com/watch?v=j4JfwS5hNlw) video sho
 
 The implementation is based on Jython. This has the benefit that the complete Python interpreter system runs inside of the JVM, but comes with the drawback that it only supports Python 2.
 
-With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/py`, `/pyload` and `/pyrestart`). `/py <code>` runs a line of Python code on a Jython intepreter (each player gets their own interpreter). A `.` (dot) at the beginning of the `<code>` line can be used in case indentation with whitespace needs to be provided (the Minecraft server removes whitespace so this is provided as a workaround). `/pyrestart` restarts the Jython interpreter. `/pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter.
+With the Jython based system, you have the ability to interact with a Jython interpreter through a telnet server, websocket server, and through chat commands (`/py`, `/pyload` and `/pyrestart`). `/py <code>` runs a line of Python code on a Jython interpreter (each player gets their own interpreter instance). A `.` (dot) at the beginning of the `<code>` line can be used in case indentation with whitespace needs to be provided (the Minecraft server removes whitespace so this is provided as a workaround). `/pyrestart` restarts the Jython interpreter. `/pyload <file>` takes a local Python file (in the running directory or on the Desktop of the server) and executes it in the Jython interpreter.
 
 Alternatively, `remote-client.py` can be used to set up a Python REPL that will send commands to the remote Jython interpreter over a websocket connection.
 
-Finally, a Telnet client can be used to connect to a telnet-based interface to the remote interpreter.
+A Telnet client can be used to connect to a telnet-based interface to the remote interpreter.
 
 A built-in Python module, `mcapi.py`, provides some predefined handy commands which can be imported in the remote interpreter. Putting `.py` files in a `python-plugins` directory runs these as "plugins" when starting up the plugin. This interpreter keeps running and can be used to set up global hooks. Other interpreters will be cleaned out after some period of inactivity.
 
@@ -22,9 +22,7 @@ A built-in Python module, `mcapi.py`, provides some predefined handy commands wh
 
 Jython only supports Python 2 for now, and it seems it'll remain that way for a long while longer. There are various Python 3 <-> JVM interop projects available, though none of which seem to offer the ease-of-use of a full Python on JVM implementation as Jython does.
 
-[Py4j](https://www.py4j.org/) comes close, and an earlier commit did provide a way to interact with Minecraft using this library. However, the Py4J implementation relies heavily on callbacks between Python and a JVM, which are sent over the network. Combining this with lots of thread-juggling and Spigot's internal thread model is daunting to say the least. The implementation works, but is very unstable when trying to perform lots of actions on the Spigot server, so I ultimately removed it from the code base for now. See [this commit](https://github.com/Macuyiko/minecraft-python/tree/168656681a2eb8472b9dbd9b00fea276ac4f6f5d) to get an idea where things ended up -- I might add this back in in a separate branch later on.
-
-At one point in time, I also investigated Lua support, but also put this on the backlog for the time being.
+[Py4j](https://www.py4j.org/) comes close, and an earlier commit did provide a way to interact with Minecraft using this library. However, the Py4J implementation relies heavily on callbacks between Python and a JVM, which are sent over the network. Combining this with lots of thread-juggling and Spigot's internal thread model is daunting. The implementation worked, but was very unstable when trying to perform lots of actions on the Spigot server, so I ultimately removed it from the code base for now. See [this commit](https://github.com/Macuyiko/minecraft-python/tree/168656681a2eb8472b9dbd9b00fea276ac4f6f5d) to get an idea where things ended up -- I might add this back in in a separate branch later on.
 
 ## Comparison
 
