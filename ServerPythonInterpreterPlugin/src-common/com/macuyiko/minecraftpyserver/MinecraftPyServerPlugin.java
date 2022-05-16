@@ -37,7 +37,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		
 		loader = this.getClassLoader();
 
-		MinecraftPyServerUtils.setup(loader);
+		MinecraftPyServerUtils.setup(loader, getLogger());
 
 		int tcpsocketserverport = getConfig().getInt("pythonconsole.telnetport", 44444);
 		int websocketserverport = getConfig().getInt("pythonconsole.websocketport", 44445);

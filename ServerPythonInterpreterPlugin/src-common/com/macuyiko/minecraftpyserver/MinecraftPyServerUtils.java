@@ -17,17 +17,23 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
 
 public class MinecraftPyServerUtils {
+	
+	private static Logger logger;
 
-	public static void setup(ClassLoader classLoader) {
+	public static void setup(ClassLoader classLoader, Logger logger) {
+		MinecraftPyServerUtils.logger = logger;
+		
 		unpack(".", "lib-common/");
-		unpack(".", "lib-spigot/");
 		unpack(".", "python/");
 
-		addURLs(classLoader, new File("lib-common/"));
-		addURLs(classLoader, new File("lib-custom/"));
-		addURLs(classLoader, new File("lib-spigot/"));
+		addURLs(classLoader, new File("lib-common/"), false);
+		addURLs(classLoader, new File("lib-custom/"), false);
+
+		addURLs(classLoader, new File("bundler/libraries/"), true);
+		addURLs(classLoader, new File("libraries/"), true);
 	}
 
 	public static String os() {
@@ -51,7 +57,8 @@ public class MinecraftPyServerUtils {
 				if (!file.getName().startsWith(prefix))
 					continue;
 				File f = new File(destDir + java.io.File.separator + file.getName());
-				System.err.println("[MinecraftPyServer] Unpacking: " + file.getName());
+				if (logger != null)
+					logger.info("Unpacking: " + file.getName());
 				f.getParentFile().mkdirs();
 				if (f.isDirectory())
 					continue;
@@ -75,13 +82,15 @@ public class MinecraftPyServerUtils {
 		}
 	}
 
-	public static void addURLs(ClassLoader classLoader, File directory) {
+	public static void addURLs(ClassLoader classLoader, File directory, boolean recursive) {
 		if (!directory.exists() || !directory.isDirectory())
 			return;
 
 		File[] files = directory.listFiles();
 		for (int i = 0; i < files.length; i++) {
-			if (files[i].getName().endsWith(".jar")) {
+			if (recursive && files[i].isDirectory()) {
+				addURLs(classLoader, files[i], recursive);
+			} else if (files[i].getName().endsWith(".jar")) {
 				try {
 					addURL(classLoader, files[i].toURI().toURL());
 				} catch (MalformedURLException e) {
@@ -92,11 +101,12 @@ public class MinecraftPyServerUtils {
 	}
 
 	public static void addURL(ClassLoader loader, URL u) {
-		System.err.println("[MinecraftPyServer] Adding: " + u.toString());
+		if (logger != null)
+			logger.info("Adding: " + u.toString());
 
 		Throwable t1 = null;
 		Throwable t2 = null;
-		
+
 		try {
 			Class<?> pluginloaderclass = Class.forName("org.bukkit.plugin.java.PluginClassLoader");
 			Field libraryloaderfield = pluginloaderclass.getDeclaredField("libraryLoader");
@@ -123,9 +133,10 @@ public class MinecraftPyServerUtils {
 		} catch (Throwable t) {
 			t2 = t;
 		}
-		
-		System.err.println("[MinecraftPyServer] Failed! Please file an issue on the GitHub repository");
-		
+
+		if (logger != null)
+			logger.severe("Failed! Please file an issue on the GitHub repository");
+
 		t1.printStackTrace();
 		t2.printStackTrace();
 

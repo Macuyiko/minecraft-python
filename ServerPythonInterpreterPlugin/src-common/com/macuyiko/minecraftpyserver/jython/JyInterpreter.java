@@ -164,18 +164,6 @@ public class JyInterpreter extends InteractiveInterpreter {
 		return sys;
 	}
 	
-	public static void addJarsToPySystemState(PySystemState sys, File directory) {
-		if (!directory.exists() || !directory.isDirectory())
-			return;
-
-		File[] files = directory.listFiles();
-		for (int i = 0; i < files.length; i++) {
-			if (files[i].getName().endsWith(".jar")) {
-				addPathToPySystemState(sys, files[i].getAbsolutePath());
-			}
-		}
-	}
-
 	public static void addPathToPySystemState(PySystemState sys, String path) {
 		try {
 			sys.path.append(new PyString(path));
