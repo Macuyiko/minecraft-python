@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -23,68 +22,17 @@ public class MinecraftPyServerUtils {
 
 	public static void setup(ClassLoader classLoader) {
 		unpack(".", "lib-common/");
+		unpack(".", "lib-spigot/");
 		unpack(".", "python/");
 
 		addURLs(classLoader, new File("lib-common/"));
 		addURLs(classLoader, new File("lib-custom/"));
-	}
-
-	public static URL getLocation(final Class<?> c) {
-		if (c == null)
-			return null;
-		try {
-			final URL codeSourceLocation = c.getProtectionDomain().getCodeSource().getLocation();
-			if (codeSourceLocation != null)
-				return codeSourceLocation;
-		} catch (final SecurityException e) {
-		} catch (final NullPointerException e) {
-		}
-
-		final URL classResource = c.getResource(c.getSimpleName() + ".class");
-		if (classResource == null)
-			return null; // cannot find class resource
-		final String url = classResource.toString();
-		final String suffix = c.getCanonicalName().replace('.', '/') + ".class";
-		if (!url.endsWith(suffix))
-			return null;
-		final String base = url.substring(0, url.length() - suffix.length());
-		String path = base;
-		if (path.startsWith("jar:"))
-			path = path.substring(4, path.length() - 2);
-		try {
-			return new URL(path);
-		} catch (final MalformedURLException e) {
-			e.printStackTrace();
-			return null;
-		}
+		addURLs(classLoader, new File("lib-spigot/"));
 	}
 
 	public static String os() {
 		final String osName = System.getProperty("os.name");
 		return osName == null ? "Unknown" : osName;
-	}
-
-	public static File urlToFile(final String url) {
-		String path = url;
-		if (path.startsWith("jar:")) {
-			final int index = path.indexOf("!/");
-			path = path.substring(4, index);
-		}
-		try {
-			if (os().startsWith("Win") && path.matches("file:[A-Za-z]:.*")) {
-				path = "file:/" + path.substring(5);
-			}
-			return new File(new URL(path).toURI());
-		} catch (final MalformedURLException e) {
-
-		} catch (final URISyntaxException e) {
-
-		}
-		if (path.startsWith("file:")) {
-			path = path.substring(5);
-			return new File(path);
-		}
-		throw new IllegalArgumentException("[MinecraftPyServer] Invalid URL: " + url);
 	}
 
 	public static void unpack(String destDir, String prefix) {

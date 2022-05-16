@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.logging.log4j.util.Strings;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
@@ -33,7 +32,7 @@ public class JyWebSocketServer extends WebSocketServer {
 			interpreters.get(ws).close();
 		}
 		int interpretertimeout = plugin.getConfig().getInt("pythonconsole.disconnecttimeout", 900);
-		JyInterpreter interpreter = new JyInterpreter(interpretertimeout);
+		JyInterpreter interpreter = new JyInterpreter(plugin.getLoader(), interpretertimeout);
 		MyOutputStream os = new MyOutputStream(ws);
 		interpreter.setOut(os);
 		interpreter.setErr(os);
@@ -133,7 +132,7 @@ public class JyWebSocketServer extends WebSocketServer {
 			String[] toSend = buffer.toString().split("\n", -1);
 			for (int i = 0; i < toSend.length; i++)
 				toSend[i] = toSend[i].replaceAll("\\s+$","");
-			this.ws.send(Strings.join(Arrays.asList(toSend), '\n'));
+			this.ws.send(String.join("\n", Arrays.asList(toSend)));
 			buffer.delete(0, buffer.length());
 		}
 	}

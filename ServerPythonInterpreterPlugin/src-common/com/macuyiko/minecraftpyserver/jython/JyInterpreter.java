@@ -17,61 +17,60 @@ import org.python.util.InteractiveInterpreter;
 public class JyInterpreter extends InteractiveInterpreter {
 
 	private static final AtomicInteger sequence = new AtomicInteger();
-	private static final ConcurrentHashMap<Integer,JyInterpreter> interpreters = new ConcurrentHashMap<Integer,JyInterpreter>();
-	
+	private static final ConcurrentHashMap<Integer, JyInterpreter> interpreters = new ConcurrentHashMap<Integer, JyInterpreter>();
+
 	private final int id;
 	private long lastCall;
 	private boolean permanent;
 	private int timeout;
 	private List<String> buffer = new ArrayList<String>();
-	
+
 	private static final int DEFAULT_IDLE_TIMEOUT = 60 * 15;
-	
-	public JyInterpreter() {
-		this(false, DEFAULT_IDLE_TIMEOUT);
+
+	public JyInterpreter(ClassLoader loader) {
+		this(loader, false, DEFAULT_IDLE_TIMEOUT);
 	}
-	
-	public JyInterpreter(boolean permanent) {
-		this(permanent, DEFAULT_IDLE_TIMEOUT);
+
+	public JyInterpreter(ClassLoader loader, boolean permanent) {
+		this(loader, permanent, DEFAULT_IDLE_TIMEOUT);
 	}
-	
-	public JyInterpreter(int timeout) {
-		this(false, timeout);
+
+	public JyInterpreter(ClassLoader loader, int timeout) {
+		this(loader, false, timeout);
 	}
-	
-	public JyInterpreter(boolean permanent, int timeout) {
-		super(null, getPythonSystemState());
+
+	public JyInterpreter(ClassLoader loader, boolean permanent, int timeout) {
+		super(null, getPythonSystemState(loader));
 		this.id = sequence.incrementAndGet();
 		interpreters.put(this.id, this);
 		this.lastCall = System.currentTimeMillis();
 		this.permanent = permanent;
 		this.timeout = timeout;
-		
+
 		this.setOut(System.out);
 		this.setErr(System.err);
 	}
-	
+
 	public static void cleanIdle() {
 		Iterator<JyInterpreter> it = interpreters.values().iterator();
 		while (it.hasNext()) {
 			JyInterpreter interpreter = it.next();
-			if (!interpreter.isPermanent() && 
-					interpreter.getTimeout() > 0 && 
-					interpreter.getSecondsPassedSinceLastCall() >= interpreter.getTimeout()) {
+			if (!interpreter.isPermanent() && interpreter.getTimeout() > 0
+					&& interpreter.getSecondsPassedSinceLastCall() >= interpreter.getTimeout()) {
 				interpreter.close();
 			}
 		}
 	}
-	
+
 	public boolean isAlive() {
 		cleanIdle();
 		return interpreters.containsKey(this.id);
 	}
-	
+
 	public boolean isPermanent() {
 		return permanent;
 	}
-	
+
 	public void resetbuffer() {
 		this.buffer.clear();
 		super.resetbuffer();
@@ -82,15 +81,15 @@ public class JyInterpreter extends InteractiveInterpreter {
 		this.cleanup();
 		super.close();
 	}
-	
+
 	public int getSecondsPassedSinceLastCall() {
 		return (int) ((System.currentTimeMillis() - this.lastCall) / 1000D);
 	}
-	
+
 	public int getTimeout() {
 		return timeout;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return id;
@@ -98,11 +97,15 @@ public class JyInterpreter extends InteractiveInterpreter {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		JyInterpreter other = (JyInterpreter) obj;
-		if (id != other.id) return false;
+		if (id != other.id)
+			return false;
 		return true;
 	}
 
@@ -116,7 +119,7 @@ public class JyInterpreter extends InteractiveInterpreter {
 			this.resetbuffer();
 		return more;
 	}
-	
+
 	public void exec(String code) {
 		lastCall = System.currentTimeMillis();
 		super.exec(code);
@@ -127,49 +130,57 @@ public class JyInterpreter extends InteractiveInterpreter {
 		try {
 			super.execfile(script.getAbsolutePath());
 		} catch (PyException exc) {
-            if (exc.match(Py.SystemExit)) {
-                // Suppress this: we don't want clients to stop the whole JVM!
-            	// We do stop this interpreter, however
-            	this.close();
-            	return;
-            }
-            showexception(exc);
-        }
+			if (exc.match(Py.SystemExit)) {
+				// Suppress this: we don't want clients to stop the whole JVM!
+				// We do stop this interpreter, however
+				this.close();
+				return;
+			}
+			showexception(exc);
+		}
 	}
-	
+
 	public void runcode(PyObject code) {
-        try {
-            exec(code);
-        } catch (PyException exc) {
-            if (exc.match(Py.SystemExit)) {
-                // Suppress this: we don't want clients to stop the whole JVM!
-            	// We do stop this interpreter, however
-            	this.close();
-            	return;
-            }
-            showexception(exc);
-        }
-    }
-	
-	public static PySystemState getPythonSystemState() {
+		try {
+			exec(code);
+		} catch (PyException exc) {
+			if (exc.match(Py.SystemExit)) {
+				// Suppress this: we don't want clients to stop the whole JVM!
+				// We do stop this interpreter, however
+				this.close();
+				return;
+			}
+			showexception(exc);
+		}
+	}
+
+	public static PySystemState getPythonSystemState(ClassLoader loader) {
 		PySystemState sys = new PySystemState();
-		addPathToPySystemState(sys, "./");
+		sys.setClassLoader(loader);
+		
 		addPathToPySystemState(sys, "./python/");
 		addPathToPySystemState(sys, "./python-plugins/");
-		File dependencyDirectory = new File("./");
-		File[] files = dependencyDirectory.listFiles();
-		for (int i = 0; i < files.length; i++) {
-		    if (files[i].getName().toLowerCase().contains("spigot") && files[i].getName().toLowerCase().endsWith(".jar")) {
-		    	addPathToPySystemState(sys, files[i].getAbsolutePath());
-		    }
-		}
+		
 		return sys;
 	}
 	
+	public static void addJarsToPySystemState(PySystemState sys, File directory) {
+		if (!directory.exists() || !directory.isDirectory())
+			return;
+
+		File[] files = directory.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].getName().endsWith(".jar")) {
+				addPathToPySystemState(sys, files[i].getAbsolutePath());
+			}
+		}
+	}
+
 	public static void addPathToPySystemState(PySystemState sys, String path) {
 		try {
 			sys.path.append(new PyString(path));
-		} catch (Exception e){}
+		} catch (Exception e) {
+		}
 	}
-	
+
 }

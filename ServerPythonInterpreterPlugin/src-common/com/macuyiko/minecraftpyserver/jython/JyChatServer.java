@@ -32,7 +32,7 @@ public class JyChatServer {
 		}
 		waiting.put(player, false);
 		int interpretertimeout = plugin.getConfig().getInt("pythonconsole.disconnecttimeout", 900);
-		JyInterpreter interpreter = new JyInterpreter(interpretertimeout);
+		JyInterpreter interpreter = new JyInterpreter(plugin.getLoader(), interpretertimeout);
 		MyOutputStream os = new MyOutputStream(this, player);
 		interpreter.setOut(os);
 		interpreter.setErr(os);
