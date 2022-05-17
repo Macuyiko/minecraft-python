@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -29,11 +28,18 @@ public class MinecraftPyServerUtils {
 		unpack(".", "lib-common/");
 		unpack(".", "python/");
 
-		addURLs(classLoader, new File("lib-common/"), false);
-		addURLs(classLoader, new File("lib-custom/"), false);
-
-		addURLs(classLoader, new File("bundler/libraries/"), true);
-		addURLs(classLoader, new File("libraries/"), true);
+		addURLsToLibraryClassLoader(classLoader, getURLs(new File("lib-common/"), false));
+	}
+	
+	public static URLClassLoader createJythonClassLoader(ClassLoader parent) {
+		List<URL> urls = new ArrayList<URL>();
+		
+		urls.addAll(getURLs(new File("lib-custom/"), false));
+		urls.addAll(getURLs(new File("bundler/libraries/"), true));
+		urls.addAll(getURLs(new File("libraries/"), true));
+		
+		URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[] {}), parent);
+		return loader;
 	}
 
 	public static String os() {
@@ -82,30 +88,33 @@ public class MinecraftPyServerUtils {
 		}
 	}
 
-	public static void addURLs(ClassLoader classLoader, File directory, boolean recursive) {
+	public static List<URL> getURLs(File directory, boolean recursive) {
+		List<URL> urls = new ArrayList<URL>();
 		if (!directory.exists() || !directory.isDirectory())
-			return;
+			return urls;
 
 		File[] files = directory.listFiles();
 		for (int i = 0; i < files.length; i++) {
 			if (recursive && files[i].isDirectory()) {
-				addURLs(classLoader, files[i], recursive);
+				urls.addAll(getURLs(files[i], recursive));
 			} else if (files[i].getName().endsWith(".jar")) {
 				try {
-					addURL(classLoader, files[i].toURI().toURL());
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
+					urls.add(files[i].toURI().toURL());
+				} catch (MalformedURLException e) {}
 			}
 		}
+		
+		return urls;
+	}
+	
+	public static void addURLsToLibraryClassLoader(ClassLoader loader, List<URL> urls) {
+		for (URL url : urls)
+			addURLToLibraryClassLoader(loader, url);
 	}
 
-	public static void addURL(ClassLoader loader, URL u) {
+	public static void addURLToLibraryClassLoader(ClassLoader loader, URL u) {
 		if (logger != null)
 			logger.info("Adding: " + u.toString());
-
-		Throwable t1 = null;
-		Throwable t2 = null;
 
 		try {
 			Class<?> pluginloaderclass = Class.forName("org.bukkit.plugin.java.PluginClassLoader");
@@ -120,28 +129,13 @@ public class MinecraftPyServerUtils {
 			libraryloaderfield.set(loader, new URLClassLoader(urllist.toArray(new URL[urllist.size()])));
 			return;
 		} catch (Throwable t) {
-			t1 = t;
-		}
-
-		try {
-			URLClassLoader sysloader = (URLClassLoader) loader;
-			Class<URLClassLoader> sysclass = URLClassLoader.class;
-			Method method = sysclass.getDeclaredMethod("addURL", new Class[] { URL.class });
-			method.setAccessible(true);
-			method.invoke(sysloader, new Object[] { u });
-			return;
-		} catch (Throwable t) {
-			t2 = t;
+			t.printStackTrace();
 		}
 
 		if (logger != null)
-			logger.severe("Failed! Please file an issue on the GitHub repository");
-
-		t1.printStackTrace();
-		t2.printStackTrace();
-
+			logger.severe("addURL failed! Please file an issue on the GitHub repository");
 	}
-
+		
 	public static File matchPythonFile(String arg) {
 		String homePath = javax.swing.filechooser.FileSystemView.getFileSystemView().getHomeDirectory()
 				.getAbsolutePath();

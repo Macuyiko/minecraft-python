@@ -32,7 +32,7 @@ public class JyWebSocketServer extends WebSocketServer {
 			interpreters.get(ws).close();
 		}
 		int interpretertimeout = plugin.getConfig().getInt("pythonconsole.disconnecttimeout", 900);
-		JyInterpreter interpreter = new JyInterpreter(plugin.getLoader(), interpretertimeout);
+		JyInterpreter interpreter = new JyInterpreter(plugin.getInterpreterClassLoader(), interpretertimeout);
 		MyOutputStream os = new MyOutputStream(ws);
 		interpreter.setOut(os);
 		interpreter.setErr(os);
