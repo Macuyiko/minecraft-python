@@ -30,7 +30,6 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 	private Thread telnetServerThread;
 	private Map<String, Supplier<Void>> onDisableFunctions = new HashMap<String, Supplier<Void>>();
 	private ClassLoader pluginLoader;
-	private ClassLoader interpreterLoader;
 
 	@Override
 	public void onEnable() {
@@ -38,7 +37,6 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		
 		pluginLoader = this.getClassLoader();
 		MinecraftPyServerUtils.setup(pluginLoader, getLogger());
-		interpreterLoader = MinecraftPyServerUtils.createJythonClassLoader(pluginLoader);
 
 		int tcpsocketserverport = getConfig().getInt("pythonconsole.telnetport", 44444);
 		int websocketserverport = getConfig().getInt("pythonconsole.websocketport", 44445);
@@ -116,8 +114,8 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		startPluginInterpreters();
 	}
 	
-	public ClassLoader getInterpreterClassLoader() {
-		return interpreterLoader;
+	public ClassLoader getPluginClassLoader() {
+		return pluginLoader;
 	}
 
 	private void startPluginInterpreters() {
@@ -127,7 +125,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].getName().endsWith(".py")) {
 					log("Parsing plugin: " + files[i].getName());
-					JyInterpreter pluginInterpreter = new JyInterpreter(getInterpreterClassLoader(), true);
+					JyInterpreter pluginInterpreter = new JyInterpreter(getPluginClassLoader(), true);
 					pluginInterpreter.execfile(files[i]);
 					pluginInterpreters.add(pluginInterpreter);
 				}

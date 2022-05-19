@@ -34,7 +34,7 @@ public class JyTelnetServerThread implements Runnable {
 			interpreter.close();
 		}
 		int interpretertimeout = server.getPlugin().getConfig().getInt("pythonconsole.disconnecttimeout", 900);
-		interpreter = new JyInterpreter(server.getPlugin().getInterpreterClassLoader(), interpretertimeout);
+		interpreter = new JyInterpreter(server.getPlugin().getPluginClassLoader(), interpretertimeout);
 		this.interpreter.setOut(this.out);
 		this.interpreter.setErr(this.out);
 	}

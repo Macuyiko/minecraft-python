@@ -1,6 +1,7 @@
 package com.macuyiko.minecraftpyserver.jython;
 
 import java.io.File;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,8 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.InteractiveInterpreter;
+
+import com.macuyiko.minecraftpyserver.MinecraftPyServerUtils;
 
 public class JyInterpreter extends InteractiveInterpreter {
 
@@ -27,20 +30,20 @@ public class JyInterpreter extends InteractiveInterpreter {
 
 	private static final int DEFAULT_IDLE_TIMEOUT = 60 * 15;
 
-	public JyInterpreter(ClassLoader loader) {
-		this(loader, false, DEFAULT_IDLE_TIMEOUT);
+	public JyInterpreter(ClassLoader parentLoader) {
+		this(parentLoader, false, DEFAULT_IDLE_TIMEOUT);
 	}
 
-	public JyInterpreter(ClassLoader loader, boolean permanent) {
-		this(loader, permanent, DEFAULT_IDLE_TIMEOUT);
+	public JyInterpreter(ClassLoader parentLoader, boolean permanent) {
+		this(parentLoader, permanent, DEFAULT_IDLE_TIMEOUT);
 	}
 
-	public JyInterpreter(ClassLoader loader, int timeout) {
-		this(loader, false, timeout);
+	public JyInterpreter(ClassLoader parentLoader, int timeout) {
+		this(parentLoader, false, timeout);
 	}
 
-	public JyInterpreter(ClassLoader loader, boolean permanent, int timeout) {
-		super(null, getPythonSystemState(loader));
+	public JyInterpreter(ClassLoader parentLoader, boolean permanent, int timeout) {
+		super(null, getPythonSystemState(parentLoader));
 		this.id = sequence.incrementAndGet();
 		interpreters.put(this.id, this);
 		this.lastCall = System.currentTimeMillis();
@@ -154,13 +157,17 @@ public class JyInterpreter extends InteractiveInterpreter {
 		}
 	}
 
-	public static PySystemState getPythonSystemState(ClassLoader loader) {
+	public static PySystemState getPythonSystemState(ClassLoader parentLoader) {
 		PySystemState sys = new PySystemState();
-		sys.setClassLoader(loader);
+		
+		URLClassLoader load = MinecraftPyServerUtils.createJythonClassLoader(
+				parentLoader
+		);
+		sys.setClassLoader(load);
 		
 		addPathToPySystemState(sys, "./python/");
 		addPathToPySystemState(sys, "./python-plugins/");
-		
+				
 		return sys;
 	}
 	

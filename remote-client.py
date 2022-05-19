@@ -12,7 +12,7 @@ class InteractiveRemoteConsole(InteractiveConsole):
             uri = 'ws://localhost:44445/'
         InteractiveConsole.__init__(self, None, "<remoteconsole>")
         self.websocket = websocket.create_connection(uri)
-        self.websocket.settimeout(5)
+        self.websocket.settimeout(60)
 
     def interact(self, banner=None, exitmsg=None):
         if banner is None:

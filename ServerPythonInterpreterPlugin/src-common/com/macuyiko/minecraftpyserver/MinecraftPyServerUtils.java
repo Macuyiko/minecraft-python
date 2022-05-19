@@ -34,7 +34,7 @@ public class MinecraftPyServerUtils {
 	public static URLClassLoader createJythonClassLoader(ClassLoader parent) {
 		List<URL> urls = new ArrayList<URL>();
 		
-		urls.addAll(getURLs(new File("lib-custom/"), false));
+		urls.addAll(getURLs(new File("lib-custom/"), true));
 		urls.addAll(getURLs(new File("bundler/libraries/"), true));
 		urls.addAll(getURLs(new File("libraries/"), true));
 		
@@ -51,9 +51,9 @@ public class MinecraftPyServerUtils {
 		File df = new File(destDir + java.io.File.separator + prefix);
 		df.mkdirs();
 
-		for (File c : df.listFiles())
-			if (c.isFile())
-				c.delete();
+		//for (File c : df.listFiles())
+		//	if (c.isFile())
+		//		c.delete();
 
 		try (JarFile jar = new JarFile(
 				MinecraftPyServerUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())) {
@@ -68,6 +68,8 @@ public class MinecraftPyServerUtils {
 				f.getParentFile().mkdirs();
 				if (f.isDirectory())
 					continue;
+				if (f.exists())
+					f.delete();
 				try (InputStream in = new BufferedInputStream(jar.getInputStream(file));
 						OutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
 					byte[] buffer = new byte[2048];
