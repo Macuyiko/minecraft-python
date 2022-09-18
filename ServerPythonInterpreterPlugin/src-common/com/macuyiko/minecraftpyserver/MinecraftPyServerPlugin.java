@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.macuyiko.minecraftpyserver.jython.JyChatServer;
 import com.macuyiko.minecraftpyserver.jython.JyCommandExecutor;
+import com.macuyiko.minecraftpyserver.jython.JyCommandListener;
 import com.macuyiko.minecraftpyserver.jython.JyInterpreter;
 import com.macuyiko.minecraftpyserver.jython.JyTelnetServer;
 import com.macuyiko.minecraftpyserver.jython.JyWebSocketServer;
@@ -56,7 +57,9 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			this.getCommand("pyload").setExecutor(new JyCommandExecutor(this, commandServer));
 			this.getCommand("pyreload").setExecutor(new JyCommandExecutor(this, commandServer));
 		}
-
+		
+	    getServer().getPluginManager().registerEvents(new JyCommandListener(), this);
+		
 		startPluginInterpreters();
 	}
 

@@ -1,7 +1,7 @@
 name: MinecraftPyServer
 main: com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin
-version: 0.14
-api-version: 1.18
+version: 0.15
+api-version: 1.19
 description: This plugin embeds a Python interpreter in Minecraft with full Spigot API access.
 author: Seppe "Macuyiko" vanden Broucke
 commands:

@@ -19,6 +19,7 @@ from org.bukkit.plugin import EventExecutor
 from org.bukkit.entity import EntityType
 from org.bukkit.command import Command
 from org.bukkit.event import Listener, EventPriority, HandlerList
+from org.bukkit.event.player import PlayerCommandPreprocessEvent 
 from org.bukkit.scheduler import BukkitRunnable
 from org.bukkit.FireworkEffect import Type as FireworkEffectType
 
@@ -36,12 +37,13 @@ import traceback
 
 SERVER = Bukkit.getServer()
 WORLD  = SERVER.getWorlds().get(0)
-PLUGIN = SERVER.getPluginManager().getPlugin('MinecraftPyServer')
+PLUGINMANAGER = SERVER.getPluginManager()
+PLUGIN = PLUGINMANAGER.getPlugin('MinecraftPyServer')
 
-_commandMapField = SERVER.getClass().getDeclaredField("commandMap")
+_commandMapField = PLUGINMANAGER.getClass().getDeclaredField("commandMap")
 _commandMapField.setAccessible(True)
-_commandMap = _commandMapField.get(SERVER)
-
+_commandMap = _commandMapField.get(PLUGINMANAGER)
+_customCommands = []
 
 class SpigotOnDisable(Supplier):
     def __init__(self, func):
@@ -145,18 +147,26 @@ def remove_ondisable(name):
 
 def add_command(name, execfunc):
     # execfunc signature: execfunc(caller, params)
-    _commandMap.register("jycraft", SpigotCommand(name, execfunc))
+    cmd = SpigotCommand(name, execfunc)
+    _commandMap.register(PLUGIN.getDescription().getName(), cmd)
     return name
 
+def get_command(name):
+    return _commandMap.getCommand(name)
+
 def remove_command(name):
-    _commandMap.getCommand(name).unregister(_commandMap)
-    _commandMap.getKnownCommands().remove(name)
+    cmd = get_command(name)
+    if not cmd: return
+    _commandMap.getKnownCommands().remove(cmd.getName())
+    for alias in cmd.getAliases():
+        _commandMap.getKnownCommands().remove(alias)
+    cmd.unregister(_commandMap)
 
 def add_event_listener(event_type, execfunc, priority=EventPriority.NORMAL):
     # execfunc signature: execfunc(event)
     listener = EventListener(execfunc)
     executor = Executor()
-    SERVER.getPluginManager().registerEvent(event_type, listener, priority, executor, PLUGIN)
+    PLUGINMANAGER.registerEvent(event_type, listener, priority, executor, PLUGIN)
     return listener
 
 def remove_event_listeners():
