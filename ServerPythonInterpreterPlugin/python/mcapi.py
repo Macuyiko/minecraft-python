@@ -271,7 +271,6 @@ def setblock(*args, **kwargs):
         'type':['type', 0, Material.COBBLESTONE]})
     WORLD.getBlockAt(r['x'], r['y'], r['z']).setType(r['type'])
 
-@synchronous()
 def line_x(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
@@ -280,7 +279,6 @@ def line_x(*args, **kwargs):
     for s in range(size):
         setblock(s + r['x'], r['y'], r['z'], r['type'])
 
-@synchronous()
 def line_y(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
@@ -289,7 +287,6 @@ def line_y(*args, **kwargs):
     for s in range(size):
         setblock(r['x'], s + r['y'], r['z'], r['type'])
 
-@synchronous()
 def line_z(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
@@ -297,8 +294,7 @@ def line_z(*args, **kwargs):
     size = min(r['size'], 12)
     for s in range(size):
         setblock(r['x'], r['y'], s + r['z'], r['type'])
-        
-@synchronous()
+
 def cube(*args, **kwargs):
     r = parseargswithpos(args, kwargs, ledger={
         'type':['type', 0, Material.COBBLESTONE],
