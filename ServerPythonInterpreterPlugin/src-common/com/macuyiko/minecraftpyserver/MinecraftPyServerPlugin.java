@@ -58,7 +58,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			this.getCommand("pyreload").setExecutor(new JyCommandExecutor(this, commandServer));
 		}
 		
-	    getServer().getPluginManager().registerEvents(new JyCommandListener(), this);
+		getServer().getPluginManager().registerEvents(new JyCommandListener(), this);
 		
 		startPluginInterpreters();
 	}
@@ -77,18 +77,23 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 
 		stopPluginInterpreters();
 
-		try {
-			webSocketServer.stop();
-		} catch (IOException e) {
-		} catch (InterruptedException e) {
+		if (webSocketServer != null) {
+			try {
+				webSocketServer.stop();
+			} catch (IOException e) {
+			} catch (InterruptedException e) {
+			}
+		}
+		
+		if (telnetServer != null) {
+			telnetServerThread.interrupt();
+			try {
+				telnetServerThread.join(1000);
+			} catch (InterruptedException e) {
+			}
+			telnetServer.close();
 		}
 
-		telnetServerThread.interrupt();
-		try {
-			telnetServerThread.join(1000);
-		} catch (InterruptedException e) {
-		}
-		telnetServer.close();
 	}
 
 	public void log(String message) {
@@ -148,7 +153,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		telnetServerThread.start();
 		return server;
 	}
-
+	
 	private JyWebSocketServer startWebSocketServer(MinecraftPyServerPlugin mainPlugin, int websocketport) {
 		JyWebSocketServer server = new JyWebSocketServer(mainPlugin, websocketport);
 		server.start();
