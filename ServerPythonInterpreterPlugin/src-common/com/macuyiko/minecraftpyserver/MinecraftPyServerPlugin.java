@@ -19,6 +19,7 @@ import com.macuyiko.minecraftpyserver.jython.JyCommandListener;
 import com.macuyiko.minecraftpyserver.jython.JyInterpreter;
 import com.macuyiko.minecraftpyserver.jython.JyTelnetServer;
 import com.macuyiko.minecraftpyserver.jython.JyWebSocketServer;
+import com.macuyiko.minecraftpyserver.py4j.Py4JServer;
 
 public class MinecraftPyServerPlugin extends JavaPlugin {
 
@@ -28,38 +29,44 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 	private JyWebSocketServer webSocketServer;
 	private JyTelnetServer telnetServer;
 	private JyChatServer commandServer;
+	private Py4JServer py4JServer;
 	private Thread telnetServerThread;
+	private Thread py4JServerThread;
+
 	private Map<String, Supplier<Void>> onDisableFunctions = new HashMap<String, Supplier<Void>>();
 	private ClassLoader pluginLoader;
 
 	@Override
 	public void onEnable() {
 		log("Loading MinecraftPyServerPlugin");
-		
+
 		pluginLoader = this.getClassLoader();
 		MinecraftPyServerUtils.setup(pluginLoader, getLogger());
 
-		int tcpsocketserverport = getConfig().getInt("pythonconsole.telnetport", 44444);
-		int websocketserverport = getConfig().getInt("pythonconsole.websocketport", 44445);
-		boolean enablechatcommands = getConfig().getString("pythonconsole.enablechatcommands", "true")
-				.equalsIgnoreCase("true");
+		int telnetPort = getConfig().getInt("pythonconsole.telnetport", 44444);
+		int py4JPort = getConfig().getInt("pythonconsole.telnetport", 44448);
+		int websocketPort = getConfig().getInt("pythonconsole.websocketport", 44445);
+		boolean enableChat = getConfig().getString("pythonconsole.enablechatcommands", "true").equalsIgnoreCase("true");
 
-		if (tcpsocketserverport > 0)
-			telnetServer = startTelnetServer(this, tcpsocketserverport);
+		if (telnetPort > 0)
+			telnetServer = startTelnetServer(this, telnetPort);
 
-		if (websocketserverport > 0)
-			webSocketServer = startWebSocketServer(this, websocketserverport);
+		if (py4JPort > 0)
+			py4JServer = startPy4JServer(this, py4JPort);
 
-		if (enablechatcommands) {
+		if (websocketPort > 0)
+			webSocketServer = startWebSocketServer(this, websocketPort);
+
+		if (enableChat) {
 			commandServer = startChatServer(this);
 			this.getCommand("py").setExecutor(new JyCommandExecutor(this, commandServer));
 			this.getCommand("pyrestart").setExecutor(new JyCommandExecutor(this, commandServer));
 			this.getCommand("pyload").setExecutor(new JyCommandExecutor(this, commandServer));
 			this.getCommand("pyreload").setExecutor(new JyCommandExecutor(this, commandServer));
 		}
-		
+
 		getServer().getPluginManager().registerEvents(new JyCommandListener(), this);
-		
+
 		startPluginInterpreters();
 	}
 
@@ -84,7 +91,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			} catch (InterruptedException e) {
 			}
 		}
-		
+
 		if (telnetServer != null) {
 			telnetServerThread.interrupt();
 			try {
@@ -92,6 +99,15 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 			} catch (InterruptedException e) {
 			}
 			telnetServer.close();
+		}
+
+		if (py4JServer != null) {
+			py4JServerThread.interrupt();
+			try {
+				py4JServerThread.join(1000);
+			} catch (InterruptedException e) {
+			}
+			py4JServer.close();
 		}
 
 	}
@@ -108,11 +124,11 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		Player p = getServer().getPlayer(player);
 		send(p, message);
 	}
-	
+
 	public void registerOnDisableHandler(String name, Supplier<Void> function) {
 		onDisableFunctions.put(name, function);
 	}
-	
+
 	public void unregisterOnDisableHandler(String name) {
 		onDisableFunctions.remove(name);
 	}
@@ -121,7 +137,7 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		stopPluginInterpreters();
 		startPluginInterpreters();
 	}
-	
+
 	public ClassLoader getPluginClassLoader() {
 		return pluginLoader;
 	}
@@ -147,15 +163,22 @@ public class MinecraftPyServerPlugin extends JavaPlugin {
 		}
 	}
 
-	private JyTelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int telnetport) {
-		JyTelnetServer server = new JyTelnetServer(mainPlugin, telnetport);
+	private JyTelnetServer startTelnetServer(MinecraftPyServerPlugin mainPlugin, int port) {
+		JyTelnetServer server = new JyTelnetServer(mainPlugin, port);
 		telnetServerThread = new Thread(server);
 		telnetServerThread.start();
 		return server;
 	}
-	
-	private JyWebSocketServer startWebSocketServer(MinecraftPyServerPlugin mainPlugin, int websocketport) {
-		JyWebSocketServer server = new JyWebSocketServer(mainPlugin, websocketport);
+
+	private Py4JServer startPy4JServer(MinecraftPyServerPlugin mainPlugin, int port) {
+		Py4JServer server = new Py4JServer(mainPlugin, port);
+		py4JServerThread = new Thread(server);
+		py4JServerThread.start();
+		return server;
+	}
+
+	private JyWebSocketServer startWebSocketServer(MinecraftPyServerPlugin mainPlugin, int port) {
+		JyWebSocketServer server = new JyWebSocketServer(mainPlugin, port);
 		server.start();
 		return server;
 	}

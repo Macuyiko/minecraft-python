@@ -18,26 +18,32 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
+import javax.swing.filechooser.FileSystemView;
+
 public class MinecraftPyServerUtils {
-	
+
 	private static Logger logger;
 
 	public static void setup(ClassLoader classLoader, Logger logger) {
 		MinecraftPyServerUtils.logger = logger;
-		
+
 		unpack(".", "lib-common/");
 		unpack(".", "python/");
 
 		addURLsToLibraryClassLoader(classLoader, getURLs(new File("lib-common/"), false));
+		try {
+			addURLToLibraryClassLoader(classLoader, new File("plugins/python.jar").toURI().toURL());
+		} catch (MalformedURLException e) {
+		}
 	}
-	
+
 	public static URLClassLoader createJythonClassLoader(ClassLoader parent) {
 		List<URL> urls = new ArrayList<URL>();
-		
+
 		urls.addAll(getURLs(new File("lib-custom/"), true));
 		urls.addAll(getURLs(new File("bundler/libraries/"), true));
 		urls.addAll(getURLs(new File("libraries/"), true));
-		
+
 		URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[] {}), parent);
 		return loader;
 	}
@@ -50,10 +56,6 @@ public class MinecraftPyServerUtils {
 	public static void unpack(String destDir, String prefix) {
 		File df = new File(destDir + java.io.File.separator + prefix);
 		df.mkdirs();
-
-		//for (File c : df.listFiles())
-		//	if (c.isFile())
-		//		c.delete();
 
 		try (JarFile jar = new JarFile(
 				MinecraftPyServerUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())) {
@@ -102,13 +104,14 @@ public class MinecraftPyServerUtils {
 			} else if (files[i].getName().endsWith(".jar")) {
 				try {
 					urls.add(files[i].toURI().toURL());
-				} catch (MalformedURLException e) {}
+				} catch (MalformedURLException e) {
+				}
 			}
 		}
-		
+
 		return urls;
 	}
-	
+
 	public static void addURLsToLibraryClassLoader(ClassLoader loader, List<URL> urls) {
 		for (URL url : urls)
 			addURLToLibraryClassLoader(loader, url);
@@ -137,10 +140,9 @@ public class MinecraftPyServerUtils {
 		if (logger != null)
 			logger.severe("addURL failed! Please file an issue on the GitHub repository");
 	}
-		
+
 	public static File matchPythonFile(String arg) {
-		String homePath = javax.swing.filechooser.FileSystemView.getFileSystemView().getHomeDirectory()
-				.getAbsolutePath();
+		String homePath = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
 		File asIs = new File(arg);
 		File onDesktop = new File(homePath, arg);
 		File asIsPy = new File(arg + ".py");

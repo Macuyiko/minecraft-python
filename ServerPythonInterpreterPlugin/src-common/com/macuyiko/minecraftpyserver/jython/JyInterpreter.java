@@ -30,6 +30,25 @@ public class JyInterpreter extends InteractiveInterpreter {
 
 	private static final int DEFAULT_IDLE_TIMEOUT = 60 * 15;
 
+	public static PySystemState getPythonSystemState(ClassLoader parentLoader) {
+		PySystemState sys = new PySystemState();
+
+		URLClassLoader load = MinecraftPyServerUtils.createJythonClassLoader(parentLoader);
+		sys.setClassLoader(load);
+
+		addPathToPySystemState(sys, "./python/");
+		addPathToPySystemState(sys, "./python-plugins/");
+
+		return sys;
+	}
+
+	public static void addPathToPySystemState(PySystemState sys, String path) {
+		try {
+			sys.path.append(new PyString(path));
+		} catch (Exception e) {
+		}
+	}
+
 	public JyInterpreter(ClassLoader parentLoader) {
 		this(parentLoader, false, DEFAULT_IDLE_TIMEOUT);
 	}
@@ -148,33 +167,12 @@ public class JyInterpreter extends InteractiveInterpreter {
 			exec(code);
 		} catch (PyException exc) {
 			if (exc.match(Py.SystemExit)) {
-				// Suppress this: we don't want clients to stop the whole JVM!
+				// We don't want clients to stop the whole JVM, 
 				// We do stop this interpreter, however
 				this.close();
 				return;
 			}
 			showexception(exc);
-		}
-	}
-
-	public static PySystemState getPythonSystemState(ClassLoader parentLoader) {
-		PySystemState sys = new PySystemState();
-		
-		URLClassLoader load = MinecraftPyServerUtils.createJythonClassLoader(
-				parentLoader
-		);
-		sys.setClassLoader(load);
-		
-		addPathToPySystemState(sys, "./python/");
-		addPathToPySystemState(sys, "./python-plugins/");
-				
-		return sys;
-	}
-	
-	public static void addPathToPySystemState(PySystemState sys, String path) {
-		try {
-			sys.path.append(new PyString(path));
-		} catch (Exception e) {
 		}
 	}
 
