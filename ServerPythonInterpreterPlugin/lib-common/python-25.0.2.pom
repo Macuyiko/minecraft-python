@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.graalvm.python</groupId>
+  <artifactId>python</artifactId>
+  <version>25.0.2</version>
+  <packaging>pom</packaging>
+  <url>http://www.graalvm.org/python</url>
+  <name>Python Pom</name>
+  <description>GraalPy, a high-performance embeddable Python 3 runtime for Java. This POM dependency includes GraalPy dependencies and Truffle Community Edition.</description>
+  <developers>
+    <developer>
+      <name>GraalVM Development</name>
+      <email>graalvm-dev@oss.oracle.com</email>
+      <organization>Oracle Corporation</organization>
+      <organizationUrl>http://www.graalvm.org/</organizationUrl>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>Universal Permissive License, Version 1.0</name>
+      <url>http://opensource.org/licenses/UPL</url>
+    </license>
+    <license>
+      <name>MIT License</name>
+      <url>http://opensource.org/licenses/MIT</url>
+    </license>
+    <license>
+      <name>Python Software Foundation License</name>
+      <url>https://docs.python.org/3/license.html</url>
+    </license>
+  </licenses>
+  <dependencies>
+    <dependency>
+      <groupId>org.graalvm.python</groupId>
+      <artifactId>python-language</artifactId>
+      <version>25.0.2</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.graalvm.python</groupId>
+      <artifactId>python-resources</artifactId>
+      <version>25.0.2</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.graalvm.truffle</groupId>
+      <artifactId>truffle-runtime</artifactId>
+      <version>25.0.2</version>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+  <scm>
+    <connection>scm:git:https://github.com/graalvm/graalpython.git</connection>
+    <developerConnection>scm:git:git@github.com:graalvm/graalpython.git</developerConnection>
+    <url>https://github.com/graalvm/graalpython</url>
+  </scm>
+</project>

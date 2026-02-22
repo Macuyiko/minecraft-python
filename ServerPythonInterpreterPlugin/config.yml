@@ -1,5 +1,4 @@
-pythonconsole:
- telnetport: 44444
- websocketport: 44445
- enablechatcommands: true
- disconnecttimeout: 900
+pylink:
+  autoload: true
+  scriptsdir: "plugins/pylink/scripts"
+  librariesdir: "plugins/pylink/libraries"

@@ -1,23 +1,14 @@
-name: MinecraftPyServer
-main: com.macuyiko.minecraftpyserver.MinecraftPyServerPlugin
+name: pylink
+main: com.macuyiko.pylink.PyLinkPlugin
 version: 0.15
 api-version: 1.19
-description: This plugin embeds a Python interpreter in Minecraft with full Spigot API access.
+description: PyLink loads Python scripts from folders and manages lifecycle commands.
 author: Seppe "Macuyiko" vanden Broucke
 commands:
-  py:
-    description: Execute Python code on Jython interpreter
-    usage: /py code
-  pyrestart:
-    description: Restart Jython interpreter
-    usage: /pyrestart
-  pyload:
-    description: Execute a server-side Python file on Jython interpreter
-    usage: /pyload file
-  pyreload:
-    description: Reload all Jython scripts
-    usage: /pyreload
+  pylink:
+    description: Manage Python script folders
+    usage: /pylink load|unload|reload <script> | /pylink list
 permissions:
-  chatcommands:
+  pylink.admin:
     default: op
-    description: Players who can use chat commands
+    description: Players who can manage PyLink scripts
