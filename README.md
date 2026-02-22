@@ -1,3 +1,8 @@
+
+> [!WARNING]  
+> This repository is currently being rewritten to use GraalVM (to support Python 3) and be more in the same style as [LuaLink](https://github.com/LuaLink) is.
+> Updated README.md to follow soon.
+
 # Minecraft Server Python Interpreter
 
 `minecraft-python` is a Spigot plugin providing the ability to control Minecraft using Python. Contrary to other approaches, this project aims to expose the whole Bukkit API to Python, instead of only providing a few commands by hardcoding or wrapping these in a Spigot plugin.
