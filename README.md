@@ -33,9 +33,13 @@ Jython only supports Python 2 for now, and it seems it'll remain that way for a 
 
 The explicit goal of this project is to allow programming Minecraft using Python and to provide the full Bukkit API in this environment without resorting to manually wrapping these through a Spigot plugin. Other interesting projects in this space are:
 
+* https://github.com/magicmq/pyspigot: very similar idea. Uses Jython internally
+* https://github.com/LuaLink/LuaLink
 * https://github.com/ammaraskar/pyCraft: modern, Python3-compatible, well-documented library for communication with a MineCraft server. This is on the networking level, however, and rather low-level.
-* https://github.com/r1chardj0n3s/pycode-minecraft: similar to command blocks, this plugin allows to code scripts on "Python Blocks". Also uses Jython internally.
-* http://www.computercraft.info/: an amazing project adding computers and more to Minecraft, provind a coding interface using Lua. This is all in-game, however, comparable to command blocks or `pycode-minecraft`. A fine way to work with computers in Minecraft, though less so to work with Minecraft in computers.
+* https://github.com/r1chardj0n3s/pycode-minecraft: similar to command blocks, this plugin allows to code scripts on "Python Blocks". Uses Jython internally.
+* https://minescript.net/
+* https://docs.skriptlang.org/
+* http://www.computercraft.info/: an project proving a coding interface using Lua. This is all in-game, however, comparable to command blocks or `pycode-minecraft`. A fine way to work with computers in Minecraft, though less so to work with Minecraft in computers.
 * https://github.com/martinohanlon/mcpi: combines https://github.com/py3minepi/py3minepi and https://github.com/martinohanlon/minecraft-stuff. Exposes only some basic commands by sending them over the wire to a Minecraft: Pi Edition server. 
 * https://github.com/zhuowei/RaspberryJuice: a plugin that implements the Minecraft Pi Edition API, so that `mcpi` above can be used together with a normal Minecraft server. https://github.com/wensheng/JuicyRaspberryPie extends this a little bit. https://www.nostarch.com/programwithminecraft uses `RaspberryJuice` + `mcpi` to write its examples. A nice approach, with the downside that many "cool" Spigot commands are not available (fireworks, spawning, explosions, ...).
 * http://scriptcraftjs.org/: similar approach, but uses JavaScript and adds more boilerplate code between the JS engine <-> Java interaction. A bit out of date, sadly.
