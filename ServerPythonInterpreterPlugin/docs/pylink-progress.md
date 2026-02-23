@@ -31,9 +31,9 @@
 - [x] Rename plugin identity to `pylink`.
 - [x] Rename package/class structure to `com.macuyiko.pylink` / `PyLinkPlugin`.
 - [x] Final live-server validation pass for listener/logging edge cases.
-- [ ] Final release notes + migration checklist.
-- [ ] Add some fun examples (from my lualink scripts).
-- [ ] Add a util library which can handle batched world updates or other tasks in a friendly way for plugins to use, e.g. spread out a task over x/y positions over multiplel ticks.
+- [ ] Final release notes (basically update `README.md`).
+- [ ] Add some fun examples (from my previous lualink scripts).
+- [ ] Add a util library which can handle batched world updates or other tasks in a friendly way for plugins to use, e.g. spread out a task over x/y positions over multiple ticks (we can do this after converting the examples).
 
 ## Decision Log
 
