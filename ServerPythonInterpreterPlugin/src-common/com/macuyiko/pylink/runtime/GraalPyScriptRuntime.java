@@ -131,6 +131,8 @@ public class GraalPyScriptRuntime implements ScriptRuntime {
 			builder = callBuilderMethodIfPresent(builder, "allowAllAccess", boolean.class, true);
 			builder = callBuilderMethodIfPresent(builder, "allowCreateThread", boolean.class, true);
 			builder = callBuilderMethodIfPresent(builder, "allowIO", boolean.class, true);
+			builder = callBuilderMethodIfPresent(builder, "option", String.class, String.class, "python.EmulateJython",
+					"true");
 			builder = callBuilderMethodIfPresent(builder, "option", String.class, String.class, "engine.WarnInterpreterOnly",
 					"false");
 			Method build = builder.getClass().getMethod("build");
